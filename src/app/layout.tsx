@@ -41,6 +41,10 @@ export const metadata: Metadata = {
     locale: "ko_KR",
     type: "website",
   },
+  // ✅ Google AdSense 메타 태그 (3가지 인증 방법 중 하나)
+  other: {
+    "google-adsense-account": "ca-pub-9949834393027889",
+  },
 };
 
 export default function RootLayout({
@@ -56,7 +60,7 @@ export default function RootLayout({
         <Footer />
         <Script
           async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-YOUR_ADSENSE_ID"
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9949834393027889"
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
