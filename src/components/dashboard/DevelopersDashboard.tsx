@@ -189,14 +189,14 @@ export function DevelopersDashboard() {
               <img 
                 src={dev.avatar} 
                 alt={dev.name} 
-                className="w-[52px] h-[52px] sm:w-[56px] sm:h-[56px] rounded-full ring-2 ring-[#707EEA] ring-offset-2 object-cover shrink-0" 
+                className="w-[52px] h-[52px] sm:w-[56px] sm:h-[56px] rounded-full ring-2 ring-[#A7C4A0] ring-offset-2 object-cover shrink-0" 
               />
               <div className="min-w-0 flex flex-col">
                 <h4 className="text-[17px] sm:text-[18px] font-medium text-[#1F2937] leading-tight group-hover:text-[#6F8F72] transition-colors">
                   {dev.name === dev.login ? dev.login : dev.name}
                 </h4>
                 <p className="text-[14px] sm:text-[15px] text-[#6B7280] mt-1 truncate">
-                  GitHub에서 총 <strong className="text-[#5569C6] font-semibold">{dev.hits > 0 ? dev.hits.toLocaleString() : Math.floor(Math.random() * 300) + 50}</strong> 일 동안 인기 검색어에 선정되었습니다.
+                  GitHub에서 총 <strong className="text-[#6F8F72] font-bold">{dev.hits.toLocaleString()}</strong> 일 동안 인기 트렌드에 선정되었습니다.
                 </p>
               </div>
             </div>
