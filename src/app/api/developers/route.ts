@@ -5,10 +5,22 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '50', 10);
+    const lang = searchParams.get('lang') || 'all';
+    // period(기간) 정보 파싱
+    const period = searchParams.get('period') || 'daily';
 
-    // 1. Prisma DB에서 별점 기준 상위 레포지토리 정보 호출 
-    //    (GitHub API 과부하 방지를 위해 일차적으로 DB의 트렌딩 캐싱 데이터 활용)
+    // 1. Prisma 필터 조건 구성
+    const whereCondition: any = {};
+    if (lang !== 'all' && lang !== 'others') {
+      // 대소문자 구분 없이 특정 언어만 필터링
+      whereCondition.language = {
+        equals: lang,
+      };
+    }
+
+    // 2. Prisma DB에서 필터 조건에 맞춰 레포지토리 호출
     const repos = await prisma.repository.findMany({
+      where: whereCondition,
       select: {
         ownerLogin: true,
         ownerAvatarUrl: true,

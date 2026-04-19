@@ -3,6 +3,8 @@ import prisma from '@/lib/db';
 import { fetchTrendingRepositories } from '@/lib/github';
 import { TrendingPeriod, ProgrammingLanguage } from '@/types';
 
+export const maxDuration = 60;
+
 // 보안 크론 시크릿 검증
 function isAuthorized(request: NextRequest) {
   const authHeader = request.headers.get('authorization');

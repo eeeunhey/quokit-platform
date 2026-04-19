@@ -6,6 +6,8 @@ import { fetchTrendingRepositories } from '@/lib/github';
 import { translateDescription } from '@/lib/gemini';
 import { TrendingPeriod, ProgrammingLanguage, TrendingRepository } from '@/types';
 
+export const maxDuration = 60;
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const period = (searchParams.get('period') || 'daily') as TrendingPeriod;

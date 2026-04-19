@@ -74,9 +74,10 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-bold text-text-primary mb-3">6. 문의</h2>
+          <h2 className="text-xl font-bold text-text-primary mb-3">6. 개인정보 보호책임자 및 문의</h2>
           <p className="text-text-secondary leading-relaxed">
-            개인정보 관련 문의는 GitHub Issues를 통해 접수할 수 있습니다.
+            개인정보 관련 문의, 불만 처리 등은 아래 연락처 또는 GitHub Issues를 통해 접수할 수 있습니다.<br/><br/>
+            <strong>이메일:</strong> admin@quokit.com (실제 이메일로 변경 요망)
           </p>
         </section>
       </div>

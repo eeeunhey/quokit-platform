@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { MapPin, Building2, Link as LinkIcon, Mail, Star, GitFork, ExternalLink, Calendar, TrendingUp } from 'lucide-react';
+import { MapPin, Building2, Link as LinkIcon, Mail, Star, GitFork, ExternalLink, Calendar, TrendingUp, Users } from 'lucide-react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 
 export function DeveloperDetail({ username }: { username: string }) {
@@ -70,6 +70,18 @@ export function DeveloperDetail({ username }: { username: string }) {
             <p className="text-[#4B5563] mt-4 leading-relaxed max-w-2xl text-[15px] sm:text-base">
               {profile.bio || '등록된 소개가 없습니다.'}
             </p>
+
+            {/* 팔로워 / 팔로잉 정보 (GitHub 스타일) */}
+            <div className="flex items-center gap-4 mt-4 text-[14.5px] text-[#4B5563] font-medium">
+              <span className="flex items-center gap-1.5 hover:text-[#6F8F72] transition-colors cursor-pointer">
+                <Users className="w-4 h-4 text-[#9CA3AF]" />
+                <strong className="text-[#1F2937]">{profile.followers?.toLocaleString() || 0}</strong> 팔로워
+              </span>
+              <span className="w-1 h-1 bg-[#D1D5DB] rounded-full"></span>
+              <span className="flex items-center gap-1 hover:text-[#6F8F72] transition-colors cursor-pointer">
+                <strong className="text-[#1F2937]">{profile.following?.toLocaleString() || 0}</strong> 팔로잉
+              </span>
+            </div>
             
             {/* 소속, 위치 등 세부 정보 */}
             <div className="mt-7 flex flex-wrap gap-x-8 gap-y-3.5">

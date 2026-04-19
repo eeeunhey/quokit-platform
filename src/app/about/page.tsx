@@ -50,9 +50,11 @@ export default function AboutPage() {
           매일 자동으로 트렌딩 레포를 수집하고, 한국어 번역 및 해설을 제공합니다.
         </p>
 
-        <h2 className="text-xl font-bold text-text-primary mt-10 mb-4">문의</h2>
+        <h2 className="text-xl font-bold text-text-primary mt-10 mb-4">운영 및 문의</h2>
         <p className="text-text-secondary leading-relaxed">
-          서비스 관련 문의 및 제안은 GitHub Issues를 통해 보내주세요.
+          서비스 제휴, 광고 배너 구성 및 오류 신고 등 관련 문의는 아래 이메일이나 GitHub Issues를 통해 보내주세요.
+          <br /><br />
+          <strong>이메일:</strong> admin@quokit.com (예시 이메일을 실제 연락처로 변경해주세요)
         </p>
       </div>
     </div>

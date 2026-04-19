@@ -3,6 +3,8 @@ import prisma from '@/lib/db';
 import { translateDescription, summarizeReadme, translateReadme } from '@/lib/gemini';
 import { getReadme } from '@/lib/github';
 
+export const maxDuration = 60;
+
 // MyMemory 무료 API: IP 차단 방지를 위해 1.5초 간격으로 호출
 const DELAY_MS = 1500;
 
