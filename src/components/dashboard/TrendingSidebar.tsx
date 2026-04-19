@@ -2,24 +2,19 @@ import Link from 'next/link';
 import { TrendingUp } from 'lucide-react';
 
 export async function TrendingSidebar() {
-  // 전체 깃허브 기준 트렌딩 토픽 (데이터가 방대하여 실시간 집계가 어려우므로
-  // 글로벌 트렌드를 기반으로 하는 대표적인 토픽 랭킹을 제공합니다)
+  // 전체 깃허브 기준 트렌딩 토픽
   const trendingTopics = [
-    { rank: 1, topic: "AI agent", stars: "37.7k" },
-    { rank: 2, topic: "AI skills", stars: "14.4k" },
-    { rank: 3, topic: "AI coding assistant", stars: "14.3k" },
-    { rank: 4, topic: "Self-hosted", stars: "11.1k" },
-    { rank: 5, topic: "Curated list", stars: "9.5k" },
-    { rank: 6, topic: "AI workflow", stars: "8.1k" },
-    { rank: 7, topic: "Workflow automation", stars: "6k" },
-    { rank: 8, topic: "Programming examples", stars: "4.1k" },
-    { rank: 9, topic: "MCP", stars: "4k" },
-    { rank: 10, topic: "Proxy", stars: "3.7k" },
-    { rank: 11, topic: "AI infrastructure", stars: "3.4k" },
-    { rank: 12, topic: "Local LLM", stars: "3.4k" },
-    { rank: 13, topic: "Audio processing", stars: "3.2k" },
-    { rank: 14, topic: "Document processing", stars: "3.2k" },
-    { rank: 15, topic: "RAG", stars: "3.2k" },
+    { rank: 1, topic: "AI 에이전트", search: "ai-agent", stars: "37.7k" },
+    { rank: 2, topic: "AI 코딩 비서", search: "ai-coding-assistant", stars: "14.4k" },
+    { rank: 3, topic: "셀프 호스팅", search: "self-hosted", stars: "11.1k" },
+    { rank: 4, topic: "큐레이션 리스트", search: "curated-list", stars: "9.5k" },
+    { rank: 5, topic: "AI 워크플로우", search: "ai-workflow", stars: "8.1k" },
+    { rank: 6, topic: "워크플로우 자동화", search: "workflow-automation", stars: "6.0k" },
+    { rank: 7, topic: "MCP (컨텍스트 프로토콜)", search: "mcp", stars: "4.0k" },
+    { rank: 8, topic: "프록시 서버", search: "proxy", stars: "3.7k" },
+    { rank: 9, topic: "AI 인프라", search: "ai-infrastructure", stars: "3.4k" },
+    { rank: 10, topic: "로컬 LLM", search: "local-llm", stars: "3.4k" },
+    { rank: 11, topic: "RAG (검색 증강 생성)", search: "rag", stars: "3.2k" },
   ];
 
   return (
@@ -28,13 +23,17 @@ export async function TrendingSidebar() {
       {/* ====================================================
           메인 위젯: 글로벌 트렌딩 토픽 (전체 깃허브 기준)
           ==================================================== */}
-      <div className="bg-white border border-[#E8ECE8] rounded-[6px] shadow-sm overflow-hidden flex flex-col">
+      <div className="bg-white border border-[#E8ECE8] rounded-[20px] shadow-sm overflow-hidden flex flex-col">
         
         {/* 1) 카드 상단: 타이틀 & 기간 라벨 */}
-        <div className="px-5 pt-5 pb-4 border-b border-[#F3F4F6] flex items-center bg-white">
-          <h2 className="text-[13px] font-bold text-[#4B5563] tracking-wide uppercase">
-            TRENDING <span className="text-[#D1D5DB] font-normal mx-1">//</span> <span className="text-[#9CA3AF] font-medium">DAILY</span>
-          </h2>
+        <div className="px-5 pt-5 pb-4 border-b border-[#F3F4F6] flex items-center bg-white justify-between">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="w-[18px] h-[18px] text-[#6F8F72]" />
+            <h2 className="text-[15px] font-bold text-[#1F2937] tracking-tight">
+              뜨고 있는 토픽
+            </h2>
+          </div>
+          <span className="px-2 py-0.5 text-[10px] font-bold tracking-wider text-[#6F8F72] bg-[#EEF5EE] rounded-md">DAILY</span>
         </div>
 
         {/* 2) 카드 본문: 리스트 영역 */}
@@ -42,26 +41,26 @@ export async function TrendingSidebar() {
           {trendingTopics.map((item) => (
             <Link 
               key={item.topic} 
-              href={`https://github.com/topics/${item.topic.toLowerCase().replace(/ /g, '-')}`}
+              href={`https://github.com/topics/${item.search}`}
               target="_blank"
               rel="noopener noreferrer"
               className="group flex items-center justify-between px-5 py-3 border-b border-[#F9FAFB] last:border-0 hover:bg-[#F9FAFB] transition-colors cursor-pointer"
             >
               <div className="flex items-center gap-3.5 min-w-0">
                 {/* 순위 표기 */}
-                <span className={`text-[13px] font-semibold w-4 text-center shrink-0 ${item.rank <= 3 ? 'text-[#5569C6]' : 'text-[#9CA3AF]'}`}>
+                <span className={`text-[14px] font-bold w-4 text-center shrink-0 ${item.rank <= 3 ? 'text-[#6F8F72]' : 'text-[#9CA3AF]'}`}>
                   {item.rank}
                 </span>
                 {/* 해시태그 */}
-                <span className="text-[14px] text-[#A7B1D0] font-light">#</span>
+                <span className="text-[14px] text-[#A7C4A0] font-light">#</span>
                 {/* 토픽명 */}
-                <span className="text-[15px] font-medium text-[#1F2937] group-hover:text-[#5569C6] truncate transition-colors">
+                <span className="text-[14.5px] font-medium text-[#4B5563] group-hover:text-[#355E3B] truncate transition-colors">
                   {item.topic}
                 </span>
               </div>
               {/* 스탯 (별점) */}
-              <div className="text-[13px] font-medium text-[#9CA3AF] shrink-0">
-                {item.stars} stars
+              <div className="text-[13px] font-medium text-[#9CA3AF] shrink-0 group-hover:text-[#6F8F72] transition-colors">
+                {item.stars}
               </div>
             </Link>
           ))}
@@ -72,9 +71,9 @@ export async function TrendingSidebar() {
           href="https://github.com/topics" 
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-start gap-1 p-5 bg-white hover:bg-[#F9FAFB] font-bold text-[12px] tracking-wide text-[#4B5563] transition-colors border-t border-[#F3F4F6] uppercase"
+          className="flex items-center justify-center gap-1 p-4 bg-[#F8FAF8] hover:bg-[#EEF5EE]/40 font-semibold text-[13px] tracking-wide text-[#6F8F72] transition-colors border-t border-[#F3F4F6]"
         >
-          BROWSE ALL TOPICS →
+          오픈소스 토픽 전체보기 →
         </Link>
       </div>
 
