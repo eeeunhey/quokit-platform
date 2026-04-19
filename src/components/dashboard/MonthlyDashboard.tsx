@@ -4,15 +4,15 @@ import { useState } from 'react';
 import { BarChart3, Star, GitFork, Merge, CircleDot, CheckCircle2 } from 'lucide-react';
 
 const MOCK_MONTHLY_REPOS = [
-  { id: 1, name: "facebook/react", desc: "The library for web and native user interfaces.", lang: "JavaScript", source: "GitHub", val: "+130,707" },
-  { id: 2, name: "vercel/next.js", desc: "The React Framework", lang: "JavaScript", source: "GitHub", val: "+84,102" },
-  { id: 3, name: "huggingface/transformers", desc: "State-of-the-art Machine Learning for Pytorch, TensorFlow, and JAX.", lang: "Python", source: "GitHub", val: "+56,220" },
-  { id: 4, name: "microsoft/vscode", desc: "Visual Studio Code", lang: "TypeScript", source: "GitHub", val: "+42,881" },
-  { id: 5, name: "astral-sh/uv", desc: "An extremely fast Python package and project manager, written in Rust.", lang: "Rust", source: "GitHub", val: "+38,944" },
+  { id: 1, name: "facebook/react", desc: "웹 및 네이티브 사용자 인터페이스를 위한 라이브러리.", lang: "JavaScript", source: "GitHub", stats: { stars: "+130,707", forks: "+25,123", merged: "+1,420", issues: "+3,200", closed: "+2,900" }},
+  { id: 2, name: "vercel/next.js", desc: "생산성을 극대화한 React 프레임워크", lang: "JavaScript", source: "GitHub", stats: { stars: "+84,102", forks: "+14,500", merged: "+980", issues: "+2,100", closed: "+1,800" }},
+  { id: 3, name: "huggingface/transformers", desc: "Pytorch, TensorFlow 및 JAX를 위한 최첨단 머신러닝 라이브러리", lang: "Python", source: "GitHub", stats: { stars: "+56,220", forks: "+12,100", merged: "+750", issues: "+1,800", closed: "+1,650" }},
+  { id: 4, name: "microsoft/vscode", desc: "인기 있는 텍스트 에디터, Visual Studio Code", lang: "TypeScript", source: "GitHub", stats: { stars: "+42,881", forks: "+8,900", merged: "+640", issues: "+1,500", closed: "+1,400" }},
+  { id: 5, name: "astral-sh/uv", desc: "Rust로 작성된 매우 빠른 Python 패키지 및 프로젝트 관리자.", lang: "Rust", source: "GitHub", stats: { stars: "+38,944", forks: "+5,400", merged: "+320", issues: "+900", closed: "+850" }},
 ];
 
 export function MonthlyDashboard() {
-  const [metric, setMetric] = useState('stars');
+  const [metric, setMetric] = useState<'stars'|'forks'|'merged'|'issues'|'closed'>('stars');
   const [year, setYear] = useState('2026');
   const [month, setMonth] = useState('04');
 
@@ -22,16 +22,16 @@ export function MonthlyDashboard() {
     { id: 'merged', label: '병합된 PR', icon: Merge },
     { id: 'issues', label: '신규 이슈', icon: CircleDot },
     { id: 'closed', label: '해결된 이슈', icon: CheckCircle2 },
-  ];
+  ] as const;
 
   const getMetricSuffix = () => {
     switch (metric) {
-      case 'stars': return 'stars gained';
-      case 'forks': return 'times forked';
-      case 'merged': return 'PRs merged';
-      case 'issues': return 'issues opened';
-      case 'closed': return 'issues resolved';
-      default: return 'actions';
+      case 'stars': return '개의 생성된 별점';
+      case 'forks': return '번의 체인 포크';
+      case 'merged': return '개의 병합된 PR';
+      case 'issues': return '개의 생성된 이슈';
+      case 'closed': return '개의 해결된 이슈';
+      default: return '건의 활성 활동';
     }
   };
 
@@ -126,7 +126,7 @@ export function MonthlyDashboard() {
 
             <div className="sm:text-right pl-10 sm:pl-0 shrink-0">
               <div className="text-[26px] font-black tracking-tight text-[#1F2937] font-mono select-all">
-                {repo.val}
+                {repo.stats[metric]}
               </div>
               <div className="text-[13px] font-medium text-[#6B7280] mt-0.5">
                 {getMetricSuffix()}
