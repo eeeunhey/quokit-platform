@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Repository {
+  id                   BigInt    @id @default(autoincrement())
+  githubId             BigInt    @unique @map("github_id")
+  fullName             String    @unique @map("full_name")
+  name                 String
+  ownerLogin           String    @map("owner_login")
+  ownerAvatarUrl       String?   @map("owner_avatar_url")
+  description          String?   @db.Text
+  descriptionKo        String?   @map("description_ko") @db.Text
+  summaryKo            String?   @map("summary_ko") @db.Text
+  htmlUrl              String    @map("html_url")
+  homepage             String?
+  language             String?
+  topics               Json      @default("[]")
+  starsCount           Int       @default(0) @map("stars_count")
+  forksCount           Int       @default(0) @map("forks_count")
+  issuesCount          Int       @default(0) @map("issues_count")
+  openGraphImageUrl    String?   @map("open_graph_image_url")
+  lastFetchedAt        DateTime  @default(now()) @map("last_fetched_at")
+  createdAt            DateTime  @default(now()) @map("created_at")
+
+  trendingSnapshots    TrendingSnapshot[]
+  translationCache     TranslationCache?
+
+  @@index([fullName])
+  @@index([language])
+  @@map("repositories")
+}
+
+model TrendingSnapshot {
+  id                   BigInt    @id @default(autoincrement())
+  period               String    // 'daily', 'weekly', 'monthly'
+  language             String    // 'all', 'javascript', 'python' 등
+  snapshotDate         DateTime  @default(now()) @db.Date @map("snapshot_date")
+  repoId               BigInt    @map("repo_id")
+  currentRank          Int       @map("current_rank")
+  gainedStars          Int       @default(0) @map("gained_stars")
+  createdAt            DateTime  @default(now()) @map("created_at")
+
+  repository           Repository @relation(fields: [repoId], references: [id], onDelete: Cascade)
+
+  @@unique([period, language, snapshotDate, repoId])
+  @@index([period, language, snapshotDate], name: "idx_trending_snapshots_lookup")
+  @@index([currentRank], name: "idx_trending_snapshots_rank")
+  @@map("trending_snapshots")
+}
+
+model TranslationCache {
+  id                   BigInt    @id @default(autoincrement())
+  repoId               BigInt    @unique @map("repo_id")
+  readmeOriginal       String    @db.LongText @map("readme_original")
+  readmeKo             String    @db.LongText @map("readme_ko")
+  tokensUsed           Int       @default(0) @map("tokens_used")
+  isVerified           Boolean   @default(false) @map("is_verified")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  repository           Repository @relation(fields: [repoId], references: [id], onDelete: Cascade)
+
+  @@map("translation_cache")
+}
+
+model ApiUsageLog {
+  id                   BigInt    @id @default(autoincrement())
+  serviceName          String    @map("service_name") // 'gemini', 'github', 'redis'
+  endpoint             String?
+  tokensUsed           Int       @default(0) @map("tokens_used")
+  requestsCount        Int       @default(1) @map("requests_count")
+  logDate              DateTime  @default(now()) @db.Date @map("log_date")
+  createdAt            DateTime  @default(now()) @map("created_at")
+
+  @@unique([serviceName, endpoint, logDate])
+  @@map("api_usage_log")
+}

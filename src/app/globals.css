@@ -1,26 +1,211 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ===================================================
+   Quiet Premium 2026 — Design Token System
+   =================================================== */
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Surface */
+    --bg: #FAFAFA;
+    --bg-elevated: #FFFFFF;
+    --surface: #FFFFFF;
+    --surface-hover: #F8FAFC;
+    --surface-active: #F1F5F9;
+
+    /* Text */
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --text-tertiary: #94A3B8;
+
+    /* Border */
+    --border: #E2E8F0;
+    --border-hover: #CBD5E1;
+
+    /* Accent — Shale Green (Pantone 16-6116 TCX) */
+    --accent: #789274;
+    --accent-hover: #60785C;
+    --accent-light: #F2F6F2;
+    --accent-muted: #9AB197;
+
+    /* Stars — Amber */
+    --star: #D97706;
+    --star-bg: #FFFBEB;
+    --star-border: #FDE68A;
+
+    /* Forks — Emerald */
+    --fork: #059669;
+    --fork-bg: #ECFDF5;
+    --fork-border: #A7F3D0;
+
+    /* Status */
+    --success: #10B981;
+    --warning: #F59E0B;
+    --danger: #EF4444;
+  }
+
+  .dark {
+    --bg: #09090B;
+    --bg-elevated: #18181B;
+    --surface: #18181B;
+    --surface-hover: #27272A;
+    --surface-active: #3F3F46;
+
+    --text-primary: #FAFAFA;
+    --text-secondary: #A1A1AA;
+    --text-tertiary: #71717A;
+
+    --border: #27272A;
+    --border-hover: #3F3F46;
+
+    --accent: #8AA686;
+    --accent-hover: #A3BDA0;
+    --accent-light: #232E22;
+    --accent-muted: #789274;
+
+    --star: #FBBF24;
+    --star-bg: #1C1917;
+    --star-border: #78350F;
+
+    --fork: #34D399;
+    --fork-bg: #022C22;
+    --fork-border: #065F46;
   }
 }
 
+@theme {
+  /* Surface tokens */
+  --color-bg: var(--bg);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-active: var(--surface-active);
+
+  /* Text tokens */
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+
+  /* Border tokens */
+  --color-line: var(--border);
+  --color-line-hover: var(--border-hover);
+
+  /* Accent tokens */
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-light: var(--accent-light);
+  --color-accent-muted: var(--accent-muted);
+
+  /* Data tokens */
+  --color-star: var(--star);
+  --color-star-bg: var(--star-bg);
+  --color-star-border: var(--star-border);
+  --color-fork: var(--fork);
+  --color-fork-bg: var(--fork-bg);
+  --color-fork-border: var(--fork-border);
+
+  /* Status */
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+
+  /* Typography */
+  --font-sans: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+}
+
+/* ===================================================
+   Base
+   =================================================== */
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-feature-settings: 'ss01', 'ss02', 'cv01';
+}
+
+::selection {
+  background-color: var(--accent);
+  color: white;
+}
+
+/* ===================================================
+   Utility Classes (Quiet Premium)
+   =================================================== */
+
+/* Soft depth card — NOT glassmorphism */
+.surface-card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.surface-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: 0 1px 3px 0 rgba(0,0,0,0.04);
+}
+
+/* Micro glass — Header/floating only */
+.micro-glass {
+  background-color: color-mix(in srgb, var(--bg) 85%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Data emphasis number */
+.data-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+/* Quiet fade-in */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-in {
+  animation: fadeIn 0.4s ease-out both;
+}
+
+/* Staggered children */
+.stagger > *:nth-child(1) { animation-delay: 0ms; }
+.stagger > *:nth-child(2) { animation-delay: 40ms; }
+.stagger > *:nth-child(3) { animation-delay: 80ms; }
+.stagger > *:nth-child(4) { animation-delay: 120ms; }
+.stagger > *:nth-child(5) { animation-delay: 160ms; }
+.stagger > *:nth-child(6) { animation-delay: 200ms; }
+.stagger > *:nth-child(7) { animation-delay: 240ms; }
+.stagger > *:nth-child(8) { animation-delay: 280ms; }
+.stagger > *:nth-child(9) { animation-delay: 320ms; }
+.stagger > *:nth-child(10) { animation-delay: 360ms; }
+
+/* Legacy compat (used by detail page) */
+.glass-card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.glass-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: 0 1px 3px 0 rgba(0,0,0,0.04);
+}
+.gradient-text {
+  background: linear-gradient(135deg, var(--accent) 0%, #4A5F47 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
