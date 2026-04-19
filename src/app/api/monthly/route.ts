@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
     });
 
     // 선택된 지표값이 가장 '높은 것' 순으로 재정렬
-    results.sort((a, b) => b._rawSort - a._rawSort);
+    results.sort((a: any, b: any) => b._rawSort - a._rawSort);
     const top10 = results.slice(0, 10); // 상위 10개만 깔끔하게
 
     return NextResponse.json({ success: true, data: top10, meta: { metric, year, month } });
