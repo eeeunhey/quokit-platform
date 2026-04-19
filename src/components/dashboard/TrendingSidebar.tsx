@@ -1,84 +1,80 @@
-import prisma from '@/lib/db';
 import Link from 'next/link';
-import { Code2, ChevronRight, TrendingUp } from 'lucide-react';
+import { TrendingUp } from 'lucide-react';
 
 export async function TrendingSidebar() {
-  let topLanguages: { language: string; count: number }[] = [];
-
-  try {
-    // 최근 트렌딩 데이터에서 가장 많이 사용된 프로그래밍 언어 그룹화 및 카운트
-    const langGroups = await prisma.repository.groupBy({
-      by: ['language'],
-      where: { language: { not: null } },
-      _count: { language: true },
-      orderBy: { _count: { language: 'desc' } },
-      take: 10, // 상위 10개 언어
-    });
-
-    topLanguages = langGroups
-      .filter(g => g.language)
-      .map(g => ({ language: g.language!, count: g._count.language }));
-
-  } catch (err) {
-    console.error('[TrendingSidebar]', err);
-  }
+  // 전체 깃허브 기준 트렌딩 토픽 (데이터가 방대하여 실시간 집계가 어려우므로
+  // 글로벌 트렌드를 기반으로 하는 대표적인 토픽 랭킹을 제공합니다)
+  const trendingTopics = [
+    { rank: 1, topic: "AI agent", stars: "37.7k" },
+    { rank: 2, topic: "AI skills", stars: "14.4k" },
+    { rank: 3, topic: "AI coding assistant", stars: "14.3k" },
+    { rank: 4, topic: "Self-hosted", stars: "11.1k" },
+    { rank: 5, topic: "Curated list", stars: "9.5k" },
+    { rank: 6, topic: "AI workflow", stars: "8.1k" },
+    { rank: 7, topic: "Workflow automation", stars: "6k" },
+    { rank: 8, topic: "Programming examples", stars: "4.1k" },
+    { rank: 9, topic: "MCP", stars: "4k" },
+    { rank: 10, topic: "Proxy", stars: "3.7k" },
+    { rank: 11, topic: "AI infrastructure", stars: "3.4k" },
+    { rank: 12, topic: "Local LLM", stars: "3.4k" },
+    { rank: 13, topic: "Audio processing", stars: "3.2k" },
+    { rank: 14, topic: "Document processing", stars: "3.2k" },
+    { rank: 15, topic: "RAG", stars: "3.2k" },
+  ];
 
   return (
-    <aside className="flex flex-col gap-5 sticky top-[106px]">
+    <aside className="flex flex-col gap-5 sticky top-[106px] animate-in fade-in duration-500">
 
       {/* ====================================================
-          메인 위젯: 많이 쓰이는 인기 언어 랭킹
+          메인 위젯: 글로벌 트렌딩 토픽 (전체 깃허브 기준)
           ==================================================== */}
-      <div className="bg-white border border-[#E8ECE8] rounded-[20px] shadow-sm overflow-hidden flex flex-col">
+      <div className="bg-white border border-[#E8ECE8] rounded-[6px] shadow-sm overflow-hidden flex flex-col">
         
         {/* 1) 카드 상단: 타이틀 & 기간 라벨 */}
-        <div className="px-5 pt-5 pb-4 border-b border-[#F3F4F6] flex items-center justify-between bg-white">
-          <div className="flex items-center gap-2">
-            <Code2 className="w-[18px] h-[18px] text-[#6F8F72]" />
-            <h2 className="text-[15px] font-semibold text-[#1F2937] tracking-tight">많이 쓰는 언어 랭킹</h2>
-          </div>
-          <span className="px-2 py-0.5 text-[10px] font-bold tracking-wider text-[#6F8F72] bg-[#EEF5EE] rounded-md">WEEKLY</span>
+        <div className="px-5 pt-5 pb-4 border-b border-[#F3F4F6] flex items-center bg-white">
+          <h2 className="text-[13px] font-bold text-[#4B5563] tracking-wide uppercase">
+            TRENDING <span className="text-[#D1D5DB] font-normal mx-1">//</span> <span className="text-[#9CA3AF] font-medium">DAILY</span>
+          </h2>
         </div>
 
-        {/* 2) 카드 본문: 랭킹 리스트 영역 */}
+        {/* 2) 카드 본문: 리스트 영역 */}
         <div className="flex flex-col bg-white">
-          {topLanguages.length > 0 ? (
-            topLanguages.map((item, idx) => (
-              <Link 
-                key={item.language} 
-                href={`/?language=${encodeURIComponent(item.language.toLowerCase())}`}
-                className="group flex items-center justify-between px-5 py-3.5 border-b border-[#F9FAFB] last:border-0 hover:bg-[#F9FAFB] transition-colors cursor-pointer"
-              >
-                <div className="flex items-center gap-3.5 min-w-0">
-                  {/* 순위 표기 */}
-                  <span className={`text-[14px] font-semibold font-mono w-4 text-center shrink-0 ${idx < 3 ? 'text-[#1F2937]' : 'text-[#D1D5DB]'}`}>
-                    {idx + 1}
-                  </span>
-                  {/* 언어명 */}
-                  <span className="text-[14.5px] font-medium text-[#4B5563] group-hover:text-[#1F2937] truncate transition-colors">
-                    {item.language}
-                  </span>
-                </div>
-                {/* 랭크 수치 (관련 레포 개수) */}
-                <div className="text-[13px] font-mono font-semibold text-[#9CA3AF] group-hover:text-[#6F8F72] transition-colors shrink-0">
-                  {item.count} Repos
-                </div>
-              </Link>
-            ))
-          ) : (
-            <div className="p-8 text-center text-sm text-[#9CA3AF]">
-              언어 데이터를 수집 중입니다.
-            </div>
-          )}
+          {trendingTopics.map((item) => (
+            <Link 
+              key={item.topic} 
+              href={`https://github.com/topics/${item.topic.toLowerCase().replace(/ /g, '-')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center justify-between px-5 py-3 border-b border-[#F9FAFB] last:border-0 hover:bg-[#F9FAFB] transition-colors cursor-pointer"
+            >
+              <div className="flex items-center gap-3.5 min-w-0">
+                {/* 순위 표기 */}
+                <span className={`text-[13px] font-semibold w-4 text-center shrink-0 ${item.rank <= 3 ? 'text-[#5569C6]' : 'text-[#9CA3AF]'}`}>
+                  {item.rank}
+                </span>
+                {/* 해시태그 */}
+                <span className="text-[14px] text-[#A7B1D0] font-light">#</span>
+                {/* 토픽명 */}
+                <span className="text-[15px] font-medium text-[#1F2937] group-hover:text-[#5569C6] truncate transition-colors">
+                  {item.topic}
+                </span>
+              </div>
+              {/* 스탯 (별점) */}
+              <div className="text-[13px] font-medium text-[#9CA3AF] shrink-0">
+                {item.stars} stars
+              </div>
+            </Link>
+          ))}
         </div>
 
-        {/* 3) 카드 하단: 전체 링크 */}
+        {/* 3) 카드 하단: 전체보기 링크 */}
         <Link 
-          href="/languages" 
-          className="flex items-center justify-center gap-1.5 py-3.5 bg-[#F8FAF8] hover:bg-[#EEF5EE]/40 text-[13px] font-semibold text-[#6F8F72] transition-colors border-t border-[#F3F4F6]"
+          href="https://github.com/topics" 
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-start gap-1 p-5 bg-white hover:bg-[#F9FAFB] font-bold text-[12px] tracking-wide text-[#4B5563] transition-colors border-t border-[#F3F4F6] uppercase"
         >
-          기술 스택 전체보기
-          <ChevronRight className="w-3.5 h-3.5" />
+          BROWSE ALL TOPICS →
         </Link>
       </div>
 
