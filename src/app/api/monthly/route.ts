@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 // Next.js 내장 캐시: Redis 없이 1시간 단위 자동 캐싱 (Vercel에서 무료로 동작)
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 const GITHUB_API = 'https://api.github.com';
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
