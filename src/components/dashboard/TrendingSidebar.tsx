@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { TrendingUp } from 'lucide-react';
 
 export async function TrendingSidebar() {
-export async function TrendingSidebar() {
   // 전체 깃허브 기준 가장 많이 쓰이는 언어 (Global Top Languages)
   // 깃허브 전체의 거대한 트렌드를 기반으로 한 대표적인 언어 랭킹을 제공합니다.
   const trendingLanguages = [
