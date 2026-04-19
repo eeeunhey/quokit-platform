@@ -101,40 +101,66 @@ export function MonthlyDashboard() {
       </div>
 
       {/* 4. 랭킹 리스트 영역 */}
-      <div className="bg-white border border-[#E5E7EB] rounded-[20px] overflow-hidden shadow-sm">
-        {MOCK_MONTHLY_REPOS.map((repo, idx) => (
-          <div key={repo.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-6 sm:px-8 border-b border-[#E5E7EB] last:border-0 hover:bg-[#F9FAFB] transition-colors gap-4">
-            
-            <div className="flex items-start gap-4 sm:gap-6 flex-1 min-w-0">
-              <span className="text-xl font-black text-[#D1D5DB] w-6 pt-0.5">{idx + 1}</span>
-              <div className="min-w-0">
-                <h4 className="text-[18px] font-bold text-[#1F2937] truncate cursor-pointer hover:text-[#6F8F72] transition-colors">
+      <div className="bg-white border text-left border-[#E5E7EB] rounded-[16px] overflow-hidden shadow-sm">
+        
+        {/* 리스트 헤더 부분 */}
+        <div className="p-5 border-b border-[#E5E7EB] bg-white">
+          <h3 className="font-bold text-[#1F2937] text-[15px]">
+            선택한 지표 기준 인기 저장소
+          </h3>
+          <p className="text-[13px] text-[#6B7280] mt-1 flex items-center gap-1.5">
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+            이번 달 데이터는 매일 자동 업데이트됩니다
+          </p>
+        </div>
+
+        <div>
+          {MOCK_MONTHLY_REPOS.map((repo, idx) => (
+            <div key={repo.id} className="flex flex-col sm:flex-row justify-between p-6 border-b border-[#E5E7EB] last:border-0 hover:bg-[#F9FAFB] transition-colors gap-6">
+              
+              <div className="flex-1 min-w-0">
+                <h4 className="text-[16px] sm:text-[18px] font-bold text-[#5569C6] truncate cursor-pointer hover:underline transition-colors">
                   {repo.name}
                 </h4>
-                <p className="text-[14.5px] text-[#6B7280] mt-1.5 truncate sm:whitespace-normal sm:max-w-xl leading-relaxed">
-                  {repo.desc}
-                </p>
-                <div className="flex gap-4 text-[13px] font-medium text-[#9CA3AF] mt-3">
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-yellow-400"></span>
+                
+                {/* 메타데이터 뱃지 줄 (별점/포크/출처/언어) */}
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[13px] font-medium text-[#4B5563] mt-2 mb-3">
+                  <span className="flex items-center gap-1">
+                    <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                    {repo.stats.stars.replace('+', '')}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <GitFork className="w-4 h-4 text-[#6B7280]" />
+                    {repo.stats.forks.replace('+', '')}
+                  </span>
+                  <span className="flex items-center gap-1 ml-1">
+                    <img src="https://github.githubassets.com/favicons/favicon.svg" alt="GitHub" className="w-3.5 h-3.5 opacity-70" />
+                    GitHub
+                  </span>
+                  <span className="flex items-center gap-1.5 ml-1">
+                    <span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
                     {repo.lang}
                   </span>
-                  <span>{repo.source}</span>
+                </div>
+
+                <p className="text-[14px] text-[#4B5563] truncate sm:whitespace-normal sm:max-w-3xl leading-relaxed">
+                  {repo.desc}
+                </p>
+              </div>
+
+              {/* 우측 거대 지표 스탯 */}
+              <div className="sm:text-right shrink-0 sm:pt-1">
+                <div className="text-[18px] sm:text-[22px] font-semibold text-[#1F2937]">
+                  {repo.stats[metric]}
+                </div>
+                <div className="text-[12px] sm:text-[13px] text-[#9CA3AF] mt-1">
+                  {getMetricSuffix()} in {month}월, {year}
                 </div>
               </div>
-            </div>
 
-            <div className="sm:text-right pl-10 sm:pl-0 shrink-0">
-              <div className="text-[26px] font-black tracking-tight text-[#1F2937] font-mono select-all">
-                {repo.stats[metric]}
-              </div>
-              <div className="text-[13px] font-medium text-[#6B7280] mt-0.5">
-                {getMetricSuffix()}
-              </div>
             </div>
-
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
