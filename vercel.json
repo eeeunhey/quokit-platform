@@ -6,5 +6,15 @@
     "env": {
       "NEXT_TELEMETRY_DISABLED": "1"
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/fetch-trending",
+      "schedule": "0 16 * * *"
+    },
+    {
+      "path": "/api/cron/translate-new",
+      "schedule": "0 17 * * *"
+    }
+  ]
 }
