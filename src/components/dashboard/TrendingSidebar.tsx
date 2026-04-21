@@ -1,32 +1,62 @@
 import Link from 'next/link';
-import { TrendingUp } from 'lucide-react';
+import { TrendingUp, Hash } from 'lucide-react';
 
+interface TopicItem {
+  rank: number;
+  name: string;
+  count: number;
+}
+
+/**
+ * 글로벌 기술 트렌드 사이드바.
+ *
+ * GitHub Search API를 통해 최근 1년간 Stars 상위 100개 레포의
+ * topics(태그)를 집계한 결과를 보여줍니다.
+ *
+ * 데이터 흐름:
+ *   /api/topics (Redis 캐시 24h → GitHub Search API fallback)
+ *   → 이 서버 컴포넌트에서 fetch → 렌더링
+ *
+ * DB 의존 없음. API만으로 동작합니다.
+ */
 export async function TrendingSidebar() {
-  // 전체 깃허브 기준 가장 많이 쓰이는 언어 (Global Top Languages)
-  // 깃허브 전체의 거대한 트렌드를 기반으로 한 대표적인 언어 랭킹을 제공합니다.
-  const trendingLanguages = [
-    { rank: 1, name: "JavaScript", repos: "12M+" },
-    { rank: 2, name: "Python", repos: "8.5M+" },
-    { rank: 3, name: "TypeScript", repos: "5.2M+" },
-    { rank: 4, name: "Java", repos: "4.8M+" },
-    { rank: 5, name: "C#", repos: "3.5M+" },
-    { rank: 6, name: "C++", repos: "3.2M+" },
-    { rank: 7, name: "PHP", repos: "2.8M+" },
-    { rank: 8, name: "Shell", repos: "2.5M+" },
-    { rank: 9, name: "C", repos: "2.3M+" },
-    { rank: 10, name: "Ruby", repos: "1.8M+" },
-    { rank: 11, name: "Rust", repos: "1.5M+" },
-    { rank: 12, name: "Go", repos: "1.2M+" },
-    { rank: 13, name: "Swift", repos: "1.1M+" },
-    { rank: 14, name: "Kotlin", repos: "950K+" },
-    { rank: 15, name: "Dart", repos: "800K+" },
-  ];
+  let topTags: TopicItem[] = [];
+
+  try {
+    // 서버 컴포넌트에서 내부 API를 호출할 때는 절대 URL이 필요합니다.
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
+      || process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : 'http://localhost:3000';
+
+    const res = await fetch(`${baseUrl}/api/topics`, {
+      next: { revalidate: 86400 }, // ISR: 24시간마다 재검증
+    });
+
+    if (res.ok) {
+      const json = await res.json();
+      topTags = json.data || [];
+    }
+  } catch (error) {
+    console.error('[TrendingSidebar] Failed to fetch topics:', error);
+  }
+
+  // API 실패 또는 데이터 없을 때 Fallback (UI가 깨지지 않도록)
+  if (topTags.length === 0) {
+    topTags = [
+      { rank: 1, name: "react", count: 0 },
+      { rank: 2, name: "machine-learning", count: 0 },
+      { rank: 3, name: "typescript", count: 0 },
+      { rank: 4, name: "python", count: 0 },
+      { rank: 5, name: "nextjs", count: 0 },
+    ];
+  }
 
   return (
     <aside className="flex flex-col gap-5 sticky top-[106px] animate-in fade-in duration-500">
 
       {/* ====================================================
-          메인 위젯: 글로벌 인기 언어 랭킹 (전체 깃허브 기준)
+          메인 위젯: 글로벌 기술 트렌드 (GitHub API 기반, 1년)
           ==================================================== */}
       <div className="bg-white border border-[#E8ECE8] rounded-[20px] shadow-sm overflow-hidden flex flex-col">
         
@@ -35,18 +65,18 @@ export async function TrendingSidebar() {
           <div className="flex items-center gap-2">
             <TrendingUp className="w-[18px] h-[18px] text-[#6F8F72]" />
             <h2 className="text-[15px] font-bold text-[#1F2937] tracking-tight">
-              많이 쓰는 깃허브 언어
+              글로벌 기술 트렌드
             </h2>
           </div>
-          <span className="px-2 py-0.5 text-[10px] font-bold tracking-wider text-[#6F8F72] bg-[#EEF5EE] rounded-md">GLOBAL</span>
+          <span className="px-2 py-0.5 text-[10px] font-bold tracking-wider text-[#6F8F72] bg-[#EEF5EE] rounded-md">1 YEAR</span>
         </div>
 
-        {/* 2) 카드 본문: 리스트 영역 */}
+        {/* 2) 카드 본문: 태그 리스트 */}
         <div className="flex flex-col bg-white">
-          {trendingLanguages.map((item) => (
+          {topTags.map((item) => (
             <Link 
               key={item.name} 
-              href={`https://github.com/topics/${item.name.toLowerCase().replace(/ /g, '-')}`}
+              href={`https://github.com/topics/${item.name}`}
               target="_blank"
               rel="noopener noreferrer"
               className="group flex items-center justify-between px-5 py-3 border-b border-[#F9FAFB] last:border-0 hover:bg-[#F9FAFB] transition-colors cursor-pointer"
@@ -56,28 +86,25 @@ export async function TrendingSidebar() {
                 <span className={`text-[14px] font-bold w-4 text-center shrink-0 ${item.rank <= 3 ? 'text-[#6F8F72]' : 'text-[#9CA3AF]'}`}>
                   {item.rank}
                 </span>
-                {/* 꺾쇠 아이콘 (언어 표시용) */}
-                <span className="text-[14px] text-[#A7C4A0] font-light">{'</>'}</span>
-                {/* 언어명 (영어로 고정) */}
+                {/* 태그 아이콘 */}
+                <Hash className="w-[14px] h-[14px] text-[#A7C4A0] shrink-0" />
+                {/* 태그명 */}
                 <span className="text-[14.5px] font-medium text-[#4B5563] group-hover:text-[#355E3B] truncate transition-colors">
                   {item.name}
                 </span>
               </div>
-              {/* 스탯 (레포 볼륨) */}
+              {/* 등장 횟수 */}
               <div className="text-[13px] font-medium text-[#9CA3AF] shrink-0 group-hover:text-[#6F8F72] transition-colors">
-                {item.repos}
+                {item.count > 0 ? `${item.count}회` : '—'}
               </div>
             </Link>
           ))}
         </div>
 
-        {/* 3) 카드 하단: 전체보기 링크 */}
-        <Link 
-          href="/languages" 
-          className="flex items-center justify-center gap-1 p-4 bg-[#F8FAF8] hover:bg-[#EEF5EE]/40 font-semibold text-[13px] tracking-wide text-[#6F8F72] transition-colors border-t border-[#F3F4F6]"
-        >
-          로컬DB 언어 통계 (상세) →
-        </Link>
+        {/* 3) 카드 하단: 안내 */}
+        <div className="flex items-center justify-center gap-1 p-4 bg-[#F8FAF8] font-medium text-[12px] tracking-wide text-[#9CA3AF] border-t border-[#F3F4F6]">
+          GitHub Stars 상위 100개 레포 기준
+        </div>
       </div>
 
       {/* 광고 영역 — AdSense 자연 삽입 */}

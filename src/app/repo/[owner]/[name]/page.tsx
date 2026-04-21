@@ -8,6 +8,7 @@ import { formatCompactNumber, formatRelativeTime } from '@/lib/utils';
 import prisma from '@/lib/db';
 import { getRepository, getRepositoryLanguages, getReadme } from '@/lib/github';
 import { translateReadme, translateDescription } from '@/lib/gemini';
+// ⚠️ summarizeReadme는 제거됨 → 로컬 스크립트(scripts/daily-summary.ts)에서 별도 실행
 import { findSimilarRepos } from '@/lib/similarity';
 
 // ===== 데이터 Direct Fetcher (내부 HTTP 호출 제거 → 직접 DB/GitHub 접근) =====

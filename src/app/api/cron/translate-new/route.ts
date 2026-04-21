@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { translateDescription, summarizeReadme, translateReadme } from '@/lib/gemini';
+import { translateDescription, translateReadme } from '@/lib/gemini';
 import { getReadme } from '@/lib/github';
 
 export const maxDuration = 60;
 
-// MyMemory 무료 API: IP 차단 방지를 위해 1.5초 간격으로 호출
+// Bing/Google 무료 API: IP 차단 방지를 위해 1.5초 간격으로 호출
 const DELAY_MS = 1500;
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -15,13 +15,19 @@ function isAuthorized(request: NextRequest) {
   return authHeader === `Bearer ${process.env.CRON_SECRET}`;
 }
 
+/**
+ * 크론잡: 번역되지 않은 레포의 description + README를 Bing/Google로 번역합니다.
+ *
+ * ⚠️ AI 요약(summary_ko)은 이 크론잡에서 생성하지 않습니다.
+ *    → 로컬 스크립트(scripts/daily-summary.ts)에서 Gemini로 별도 실행합니다.
+ */
 export async function GET(request: NextRequest) {
   if (!isAuthorized(request)) {
     return new NextResponse('Unauthorized', { status: 401 });
   }
 
   try {
-    // 번역이 필요한 레포 최대 15개씩 처리 (MyMemory는 Gemini보다 빠름)
+    // 번역이 필요한 레포 최대 15개씩 처리
     const pendingRepos = await prisma.repository.findMany({
       where: { descriptionKo: null },
       orderBy: { starsCount: 'desc' },
@@ -36,15 +42,14 @@ export async function GET(request: NextRequest) {
 
     for (const repo of pendingRepos) {
       try {
-        // 1. Description 번역 (짧으므로 빠름)
+        // 1. Description 번역 (Bing/Google)
         const descKo = repo.description
           ? await translateDescription(repo.description)
           : null;
         await delay(DELAY_MS);
 
-        // 2. README 가져와서 미니 요약 생성
+        // 2. README 가져와서 번역 (Bing/Google) → TranslationCache에 저장
         const originalReadme = await getReadme(repo.ownerLogin, repo.name);
-        // 3. 전체 README 번역 및 DB/Cache 저장
         if (originalReadme) {
           const existingTranslation = await prisma.translationCache.findUnique({
             where: { repoId: repo.id }
@@ -66,19 +71,11 @@ export async function GET(request: NextRequest) {
           await delay(DELAY_MS); 
         }
 
-        let sumKo: string | null = null;
-        if (originalReadme) {
-          sumKo = await summarizeReadme(originalReadme);
-          await delay(DELAY_MS);
-        }
-
-        // 3. DB 업데이트
+        // 3. DB 업데이트 (summary_ko는 로컬 스크립트가 별도 처리)
         await prisma.repository.update({
           where: { id: repo.id },
           data: {
             descriptionKo: descKo,
-            // summaryKo가 null이면 descriptionKo를 fallback으로 사용
-            summaryKo: sumKo ?? descKo,
           },
         });
 
