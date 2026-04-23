@@ -13,8 +13,16 @@
       "schedule": "0 16 * * *"
     },
     {
+      "path": "/api/cron/fetch-hot",
+      "schedule": "30 16 * * *"
+    },
+    {
       "path": "/api/cron/translate-new",
       "schedule": "0 17 * * *"
+    },
+    {
+      "path": "/api/cron/cleanup",
+      "schedule": "0 3 * * 0"
     }
   ]
 }

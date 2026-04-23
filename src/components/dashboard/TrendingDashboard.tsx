@@ -2,9 +2,11 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Star, GitFork } from 'lucide-react';
+import { Star, GitFork, Flame, Sparkles } from 'lucide-react';
 import { TrendingPeriod, ProgrammingLanguage, TrendingRepository } from '@/types';
 import { RepoKoreanCard } from './RepoKoreanCard';
+
+type DataSource = 'hot' | 'rising';
 
 interface Props {
   initialPeriod: TrendingPeriod;
@@ -31,19 +33,46 @@ const LANGUAGES: { value: ProgrammingLanguage; label: string }[] = [
   { value: 'kotlin', label: 'Kotlin' },
 ];
 
+const SOURCE_CONFIG = {
+  hot: {
+    icon: Flame,
+    label: 'Hot',
+    color: 'text-orange-500',
+    activeBg: 'bg-orange-500/10 border-orange-500/30',
+    heading: '🔥 지금 뜨는 레포',
+    description: (period: TrendingPeriod) => {
+      const p = period === 'daily' ? '오늘' : period === 'weekly' ? '이번 주' : '이번 달';
+      return `${p} 스타가 급상승 중인 프로젝트 — 신규·기존 레포 모두 포함`;
+    },
+  },
+  rising: {
+    icon: Sparkles,
+    label: 'Rising',
+    color: 'text-violet-500',
+    activeBg: 'bg-violet-500/10 border-violet-500/30',
+    heading: '✨ 떠오르는 신생 레포',
+    description: (period: TrendingPeriod) => {
+      const p = period === 'daily' ? '오늘' : period === 'weekly' ? '이번 주' : '이번 달';
+      return `${p} 새로 만들어져서 빠르게 주목받기 시작한 프로젝트`;
+    },
+  },
+} as const;
+
 export function TrendingDashboard({ initialPeriod, initialLanguage, initialSort }: Props) {
   const router = useRouter();
+  const [source, setSource] = useState<DataSource>('hot');
   const [period, setPeriod] = useState(initialPeriod);
   const [language, setLanguage] = useState(initialLanguage);
   const [sort, setSort] = useState(initialSort);
   const [repos, setRepos] = useState<TrendingRepository[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const updateURL = useCallback((p: TrendingPeriod, l: ProgrammingLanguage, s: 'stars' | 'forks') => {
+  const updateURL = useCallback((s: DataSource, p: TrendingPeriod, l: ProgrammingLanguage, so: 'stars' | 'forks') => {
     const params = new URLSearchParams();
+    if (s !== 'hot') params.set('source', s);
     if (p !== 'daily') params.set('period', p);
     if (l !== 'all') params.set('language', l);
-    if (s !== 'stars') params.set('sort', s);
+    if (so !== 'stars') params.set('sort', so);
     const qs = params.toString();
     router.replace(qs ? `/?${qs}` : '/', { scroll: false });
   }, [router]);
@@ -53,13 +82,17 @@ export function TrendingDashboard({ initialPeriod, initialLanguage, initialSort 
     setLoading(true);
     async function fetchData() {
       try {
-        const res = await fetch(`/api/trending?period=${period}&language=${language}&per_page=20`);
+        const res = await fetch(`/api/trending?source=${source}&period=${period}&language=${language}&per_page=20`);
         if (!res.ok) throw new Error(`${res.status}`);
         const json = await res.json();
         let data: TrendingRepository[] = json.data || [];
-        if (sort === 'forks') {
+        
+        // Rising 모드에서만 Stars/Forks 정렬 적용
+        if (source === 'rising' && sort === 'forks') {
           data = [...data].sort((a, b) => b.forks_count - a.forks_count);
         }
+        // Hot 모드에서는 gained_stars 기준으로 이미 정렬됨
+        
         if (!cancelled) setRepos(data);
       } catch {
         if (!cancelled) setRepos([]);
@@ -69,50 +102,74 @@ export function TrendingDashboard({ initialPeriod, initialLanguage, initialSort 
     }
     fetchData();
     return () => { cancelled = true; };
-  }, [period, language, sort]);
+  }, [source, period, language, sort]);
 
-  const handlePeriod = (p: TrendingPeriod) => { setPeriod(p); updateURL(p, language, sort); };
-  const handleLanguage = (l: ProgrammingLanguage) => { setLanguage(l); updateURL(period, l, sort); };
-  const handleSort = (s: 'stars' | 'forks') => { setSort(s); updateURL(period, language, s); };
+  const handleSource = (s: DataSource) => { setSource(s); updateURL(s, period, language, sort); };
+  const handlePeriod = (p: TrendingPeriod) => { setPeriod(p); updateURL(source, p, language, sort); };
+  const handleLanguage = (l: ProgrammingLanguage) => { setLanguage(l); updateURL(source, period, l, sort); };
+  const handleSort = (s: 'stars' | 'forks') => { setSort(s); updateURL(source, period, language, s); };
+
+  const cfg = SOURCE_CONFIG[source];
 
   return (
     <div>
       {/* ======= 필터 컨트롤 바 ======= */}
       <div className="sticky top-14 z-40 -mx-1 px-1 py-3 
                       micro-glass border-b border-line mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex flex-col gap-3">
           
-          {/* Stars / Forks 메인 토글 */}
-          <div className="flex items-center gap-1 p-1 bg-surface-active rounded-xl border border-line">
-            <button
-              onClick={() => handleSort('stars')}
-              className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg transition-all
-                ${sort === 'stars'
-                  ? 'bg-surface text-star shadow-sm border border-star-border'
-                  : 'text-text-tertiary hover:text-text-secondary'}`}
-            >
-              <Star className="w-4 h-4" />
-              Stars 트렌딩
-              {sort === 'stars' && (
-                <span className="ml-1 text-xs text-text-tertiary font-normal">화제성</span>
-              )}
-            </button>
-            <button
-              onClick={() => handleSort('forks')}
-              className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg transition-all
-                ${sort === 'forks'
-                  ? 'bg-surface text-fork shadow-sm border border-fork-border'
-                  : 'text-text-tertiary hover:text-text-secondary'}`}
-            >
-              <GitFork className="w-4 h-4" />
-              Forks 인기
-              {sort === 'forks' && (
-                <span className="ml-1 text-xs text-text-tertiary font-normal">실용성</span>
-              )}
-            </button>
+          {/* Row 1: 데이터 소스 토글 (🔥 Hot / ✨ Rising) */}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 p-1 bg-surface-active rounded-xl border border-line">
+              {(['hot', 'rising'] as const).map((s) => {
+                const c = SOURCE_CONFIG[s];
+                const Icon = c.icon;
+                const isActive = source === s;
+                return (
+                  <button
+                    key={s}
+                    onClick={() => handleSource(s)}
+                    className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg transition-all
+                      ${isActive
+                        ? `bg-surface ${c.color} shadow-sm border ${c.activeBg}`
+                        : 'text-text-tertiary hover:text-text-secondary border border-transparent'
+                      }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    {c.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Rising 모드에서만 Stars/Forks 토글 표시 */}
+            {source === 'rising' && (
+              <div className="flex items-center gap-1 p-1 bg-surface-active rounded-xl border border-line ml-auto">
+                <button
+                  onClick={() => handleSort('stars')}
+                  className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg transition-all
+                    ${sort === 'stars'
+                      ? 'bg-surface text-star shadow-sm'
+                      : 'text-text-tertiary hover:text-text-secondary'}`}
+                >
+                  <Star className="w-3.5 h-3.5" />
+                  Stars
+                </button>
+                <button
+                  onClick={() => handleSort('forks')}
+                  className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg transition-all
+                    ${sort === 'forks'
+                      ? 'bg-surface text-fork shadow-sm'
+                      : 'text-text-tertiary hover:text-text-secondary'}`}
+                >
+                  <GitFork className="w-3.5 h-3.5" />
+                  Forks
+                </button>
+              </div>
+            )}
           </div>
 
-          {/* 기간 + 언어 */}
+          {/* Row 2: 기간 + 언어 필터 */}
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1 p-1 bg-surface-active rounded-xl border border-line">
               {PERIODS.map(({ value, label }) => (
@@ -147,12 +204,10 @@ export function TrendingDashboard({ initialPeriod, initialLanguage, initialSort 
       <div className="flex items-center justify-between mb-5">
         <div>
           <h2 className="text-lg font-bold text-text-primary">
-            {sort === 'stars' ? '🔥 Stars 트렌딩' : '⑂ Forks 인기 레포'}
+            {cfg.heading}
           </h2>
           <p className="text-xs text-text-tertiary mt-0.5">
-            {sort === 'stars'
-              ? `${period === 'daily' ? '오늘' : period === 'weekly' ? '이번 주' : '이번 달'} 가장 주목받고 있는 레포`
-              : '실제로 많이 복제되어 활용되는 레포'}
+            {cfg.description(period)}
             {language !== 'all' ? ` — ${language}` : ''}
           </p>
         </div>
@@ -190,14 +245,20 @@ export function TrendingDashboard({ initialPeriod, initialLanguage, initialSort 
               key={`${repo.full_name}-${idx}`}
               repo={repo}
               rank={idx + 1}
-              sortBy={sort}
+              sortBy={source === 'hot' ? 'stars' : sort}
             />
           ))}
         </div>
       ) : (
         <div className="surface-card p-16 text-center">
-          <p className="text-text-secondary font-medium">데이터를 불러오지 못했습니다.</p>
-          <p className="text-sm text-text-tertiary mt-1">크론잡을 실행하거나 잠시 후 다시 시도해 주세요.</p>
+          <p className="text-text-secondary font-medium">
+            {source === 'hot'
+              ? '트렌딩 데이터를 불러오지 못했습니다.'
+              : '데이터를 불러오지 못했습니다.'}
+          </p>
+          <p className="text-sm text-text-tertiary mt-1">
+            크론잡을 실행하거나 잠시 후 다시 시도해 주세요.
+          </p>
         </div>
       )}
     </div>

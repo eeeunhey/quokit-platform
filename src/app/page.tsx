@@ -7,9 +7,10 @@ export const dynamic = 'force-dynamic';
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ period?: string; language?: string; sort?: string }>;
+  searchParams: Promise<{ source?: string; period?: string; language?: string; sort?: string }>;
 }) {
   const params = await searchParams;
+  const source = (params.source || 'hot') as 'hot' | 'rising';
   const period = (params.period || 'daily') as TrendingPeriod;
   const language = (params.language || 'all') as ProgrammingLanguage;
   const sort = (params.sort || 'stars') as 'stars' | 'forks';

@@ -1,0 +1,8 @@
+# QUOK-IT robots.txt
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api/admin
+Disallow: /api/cron
+
+Sitemap: https://quokit.com/sitemap.xml
