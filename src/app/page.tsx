@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import { TrendingPeriod, ProgrammingLanguage } from '@/types';
 import { TrendingDashboard } from '@/components/dashboard/TrendingDashboard';
 import { TrendingSidebar } from '@/components/dashboard/TrendingSidebar';
@@ -37,30 +36,15 @@ export default async function HomePage({
           </div>
         </main>
 
-        {/* 우측 사이드바 (30%) */}
+        {/* 우측 사이드바 (30%) 
+            TrendingSidebar는 이제 클라이언트 컴포넌트로 자체적으로 데이터를 fetch합니다.
+            Suspense가 더 이상 필요하지 않습니다 — 컴포넌트 내부에서 skeleton을 관리합니다. */}
         <div className="hidden lg:block w-72 shrink-0">
           <div className="sticky top-[106px]">
-            <Suspense fallback={<SidebarSkeleton />}>
-              <TrendingSidebar />
-            </Suspense>
+            <TrendingSidebar />
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-function SidebarSkeleton() {
-  return (
-    <div className="flex flex-col gap-4">
-      {[1, 2, 3].map(i => (
-        <div key={i} className="surface-card p-4 space-y-2">
-          <div className="h-4 w-24 bg-surface-active rounded animate-pulse" />
-          {[1, 2, 3, 4].map(j => (
-            <div key={j} className="h-3 w-full bg-surface-active rounded animate-pulse" />
-          ))}
-        </div>
-      ))}
     </div>
   );
 }
