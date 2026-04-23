@@ -81,7 +81,7 @@
 **1) 구현한 내용**
 - `src/lib/github.ts`: 백엔드의 핵심인 GitHub Rest/Search API 통신을 전담하는 모듈 구현 완료. (Rate limit 방어를 위해 공통 Header Auth 주입)
 - `src/lib/gemini.ts`: `gemini-2.5-flash` 모델 랩핑. 디스크립션 및 전체 README 변환, 그리고 "정확히 3줄 불릿 요약" 프롬프트를 시스템 메시지로 장착. 리소스 고갈 방지를 위해 최대 요약 허용 길이(8000 글자) 하드코드 제약 추가.
-- `src/lib/translator.ts`: 기존 기획안의 "3-Layer 서빙" 로직 적용 완료. `[1. Redis 캐시] -> [2. MariaDB] -> [3. Gemini 실시간 연산]` 순차 체이닝 방식을 단일 유틸리티(`getKoreanReadme`)로 추출.
+- `src/lib/translator.ts`: 기존 기획안의 "3-Layer 서빙" 로직 적용 완료. `[1. Redis 캐시] -> [2. 데이터베이스] -> [3. Gemini 실시간 연산]` 순차 체이닝 방식을 단일 유틸리티(`getKoreanReadme`)로 추출.
 - `src/lib/similarity.ts`: 원본 레포의 `topics` 배열을 기반으로, 가장 일치하는 경쟁/유사 레포를 찾아 유사도 스코어(%)를 계산하는 헬퍼 구현.
 
 **2) 왜 이 방법을 선택했는가? (근거)**
@@ -119,7 +119,7 @@
 **완료 시간**: 2026-04-18 18:22 KST
 
 **1) 구현한 내용**
-- `src/app/api/trending/route.ts`: 프론트에서 메인 대시보드를 그릴 때 쓰일 트렌딩 API. Redis에서 가장 먼저 데이터를 찾고(hit), 없으면 MariaDB에서 스냅샷을 긁으며(miss), 혹여나 두 곳 모두 데이터가 증발한 상황에 대비하여 GitHub를 직접 찔러 복구하는 **3중 방어막**을 세웠습니다.
+- `src/app/api/trending/route.ts`: 프론트에서 메인 대시보드를 그릴 때 쓰일 트렌딩 API. Redis에서 가장 먼저 데이터를 찾고(hit), 없으면 데이터베이스에서 스냅샷을 긁으며(miss), 혹여나 두 곳 모두 데이터가 증발한 상황에 대비하여 GitHub를 직접 찔러 복구하는 **3중 방어막**을 세웠습니다.
 - `src/app/api/repos/[owner]/[name]/route.ts`: 개별 레포의 상세 스펙트럼(Star, Fork 수 등) 및 언어 사용량(Byte 비중)을 계산하여 넘겨줍니다. BigInt 직렬화 에러를 방지하기 위해 형변환(`Number()`) 코드도 내장했습니다.
 - `src/app/api/repos/[owner]/[name]/readme-ko/route.ts`: 사전에 만들어둔 `getoreanReadme` 함수를 직접 호출하는 래퍼 라우터입니다.
 - `src/app/api/repos/[owner]/[name]/similar/route.ts` & `search/route.ts`: 검색어 및 유사도 처리를 구현했습니다. 특히 검색망의 경우 외부 GitHub가 아닌 내부 DB(`descriptionKo` 등 한국어 데이터 위주)에서 풀 텍스트를 먼저 찾도록 쿼리를 최적화했습니다.
@@ -217,13 +217,13 @@
 **변경 시간**: 2026-04-18 16:40 KST
 
 **1) 변경된 내용**
-- 기존의 Supabase(PostgreSQL) REST 통신 구조에서 **MariaDB (Synology NAS) + Prisma ORM** 로 데이터베이스 백엔드가 교체되었습니다.
+- 기존의 Supabase(PostgreSQL) REST 통신 구조에서 **MySQL 호환 데이터베이스 + Prisma ORM** 로 데이터베이스 백엔드가 교체되었습니다.
 - 삭제됨: `src/lib/supabase` 디렉토리 전체
 - 추가됨: Prisma ORM 설정 파일 (`prisma/schema.prisma`), Next.js용 전역 DB 싱글톤 헬퍼 (`src/lib/db.ts`)
-- 반영됨: `.env.local` 및 `.env` 파일에 `DATABASE_URL` (hyehey.synology.me 서버) 갱신 완료
+- 반영됨: `.env.local` 및 `.env` 파일에 `DATABASE_URL` (프라이빗 DB 서버) 갱신 완료
 - 실행됨: `npx prisma db push`를 성공적으로 완료하여 사용자의 원격 서버에 테이블들(`repositories`, `trending_snapshots`, `translation_cache`, `api_usage_log`)을 성공적으로 생성 및 매핑했습니다.
 
 **2) 왜 이 방법을 선택했는가? (근거)**
-- 사용자님의 강력한 피드백 "여기(NAS MariaDB)로 연동하겠습니다 이것도 꼭 모두 반영하세요"에 따라 아키텍처를 전격 선회했습니다.
+- 사용자님의 피드백 "여기(기존 사용하던 DB)로 연동하겠습니다 이것도 꼭 모두 반영하세요"에 따라 아키텍처를 전격 선회했습니다.
 - Next.js 시스템과 온프레미스 인프라 환경의 연결을 가장 타입 안전하게 다룰 수 있는 도구는 **Prisma**이므로(안정성을 위해 V6 사용), 복잡한 SQL 쿼리 대신 ORM 방식으로 완전히 교체하여 생산성과 유지보수성을 극대화했습니다. 
 - 이후 모든 데이터 처리(Get, Upsert)는 `@prisma/client`를 통해 안전하게 이루어집니다.

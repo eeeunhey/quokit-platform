@@ -46,7 +46,7 @@ export default function AboutPage() {
 
         <h2 className="text-xl font-bold text-text-primary mt-10 mb-4">기술 스택</h2>
         <p className="text-text-secondary leading-relaxed mb-4">
-          Next.js, Prisma, MariaDB, GitHub Public API 기반으로 구축되었습니다.
+          Next.js, Prisma, MySQL, GitHub Public API 기반으로 구축되었습니다.
           매일 자동으로 트렌딩 레포를 수집하고, 한국어 번역 및 해설을 제공합니다.
         </p>
 
