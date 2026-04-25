@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Star, GitFork, Flame, Sparkles } from 'lucide-react';
+import { Star, GitFork, Flame, Sparkles, Hash } from 'lucide-react';
 import { TrendingPeriod, ProgrammingLanguage, TrendingRepository } from '@/types';
 import { RepoKoreanCard } from './RepoKoreanCard';
 
@@ -33,6 +33,8 @@ const LANGUAGES: { value: ProgrammingLanguage; label: string }[] = [
   { value: 'kotlin', label: 'Kotlin' },
 ];
 
+const PER_PAGE_OPTIONS = [10, 20, 30, 50];
+
 const SOURCE_CONFIG = {
   rising: {
     icon: Sparkles,
@@ -51,9 +53,8 @@ const SOURCE_CONFIG = {
     color: 'text-orange-500',
     activeBg: 'bg-orange-500/10 border-orange-500/30',
     heading: '🔥 지금 뜨는 레포',
-    description: (period: TrendingPeriod) => {
-      const p = period === 'daily' ? '오늘' : period === 'weekly' ? '이번 주' : '이번 달';
-      return `${p} 스타가 급상승 중인 프로젝트 — 신규·기존 레포 모두 포함`;
+    description: () => {
+      return '스타가 급상승 중인 프로젝트 — 신규·기존 레포 모두 포함';
     },
   },
 } as const;
@@ -64,6 +65,7 @@ export function TrendingDashboard({ initialPeriod, initialLanguage, initialSort 
   const [period, setPeriod] = useState(initialPeriod);
   const [language, setLanguage] = useState(initialLanguage);
   const [sort, setSort] = useState(initialSort);
+  const [perPage, setPerPage] = useState(20);
   const [repos, setRepos] = useState<TrendingRepository[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -82,7 +84,9 @@ export function TrendingDashboard({ initialPeriod, initialLanguage, initialSort 
     setLoading(true);
     async function fetchData() {
       try {
-        const res = await fetch(`/api/trending?source=${source}&period=${period}&language=${language}&per_page=20`);
+        // Hot은 기간 선택이 없으므로 항상 daily로 요청
+        const effectivePeriod = source === 'hot' ? 'daily' : period;
+        const res = await fetch(`/api/trending?source=${source}&period=${effectivePeriod}&language=${language}&per_page=${perPage}`);
         if (!res.ok) throw new Error(`${res.status}`);
         const json = await res.json();
         let data: TrendingRepository[] = json.data || [];
@@ -104,7 +108,7 @@ export function TrendingDashboard({ initialPeriod, initialLanguage, initialSort 
     }
     fetchData();
     return () => { cancelled = true; };
-  }, [source, period, language, sort]);
+  }, [source, period, language, sort, perPage]);
 
   const handleSource = (s: DataSource) => { setSource(s); updateURL(s, period, language, sort); };
   const handlePeriod = (p: TrendingPeriod) => { setPeriod(p); updateURL(source, p, language, sort); };
@@ -120,7 +124,7 @@ export function TrendingDashboard({ initialPeriod, initialLanguage, initialSort 
                       micro-glass border-b border-line mb-6">
         <div className="flex flex-col gap-3">
           
-          {/* Row 1: 데이터 소스 토글 (🔥 Hot / ✨ Rising) */}
+          {/* Row 1: 데이터 소스 토글 (Rising / Hot) + Stars/Forks 정렬 */}
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1 p-1 bg-surface-active rounded-xl border border-line">
               {(['rising', 'hot'] as const).map((s) => {
@@ -144,47 +148,52 @@ export function TrendingDashboard({ initialPeriod, initialLanguage, initialSort 
               })}
             </div>
 
-            {/* Stars/Forks 정렬 토글 */}
-              <div className="flex items-center gap-1 p-1 bg-surface-active rounded-xl border border-line ml-auto">
-                <button
-                  onClick={() => handleSort('stars')}
-                  className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg transition-all
-                    ${sort === 'stars'
-                      ? 'bg-surface text-star shadow-sm'
-                      : 'text-text-tertiary hover:text-text-secondary'}`}
-                >
-                  <Star className="w-3.5 h-3.5" />
-                  Stars
-                </button>
-                <button
-                  onClick={() => handleSort('forks')}
-                  className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg transition-all
-                    ${sort === 'forks'
-                      ? 'bg-surface text-fork shadow-sm'
-                      : 'text-text-tertiary hover:text-text-secondary'}`}
-                >
-                  <GitFork className="w-3.5 h-3.5" />
-                  Forks
-                </button>
-              </div>
+            {/* Stars/Forks 정렬 토글 — Rising/Hot 바로 옆 */}
+            <div className="flex items-center gap-1 p-1 bg-surface-active rounded-xl border border-line">
+              <button
+                onClick={() => handleSort('stars')}
+                className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg transition-all
+                  ${sort === 'stars'
+                    ? 'bg-surface text-star shadow-sm'
+                    : 'text-text-tertiary hover:text-text-secondary'}`}
+              >
+                <Star className="w-3.5 h-3.5" />
+                Stars
+              </button>
+              <button
+                onClick={() => handleSort('forks')}
+                className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg transition-all
+                  ${sort === 'forks'
+                    ? 'bg-surface text-fork shadow-sm'
+                    : 'text-text-tertiary hover:text-text-secondary'}`}
+              >
+                <GitFork className="w-3.5 h-3.5" />
+                Forks
+              </button>
+            </div>
           </div>
 
-          {/* Row 2: 기간 + 언어 필터 */}
+          {/* Row 2: 기간 필터(Rising만) + 전체 언어 + 갯수 선택 */}
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 p-1 bg-surface-active rounded-xl border border-line">
-              {PERIODS.map(({ value, label }) => (
-                <button
-                  key={value}
-                  onClick={() => handlePeriod(value)}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all
-                    ${period === value
-                      ? 'bg-surface text-text-primary shadow-sm'
-                      : 'text-text-tertiary hover:text-text-secondary'}`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+            {/* Rising일 때만 기간 필터 표시 */}
+            {source === 'rising' && (
+              <div className="flex items-center gap-1 p-1 bg-surface-active rounded-xl border border-line">
+                {PERIODS.map(({ value, label }) => (
+                  <button
+                    key={value}
+                    onClick={() => handlePeriod(value)}
+                    className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all
+                      ${period === value
+                        ? 'bg-surface text-text-primary shadow-sm'
+                        : 'text-text-tertiary hover:text-text-secondary'}`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* 언어 선택 */}
             <select
               value={language}
               onChange={(e) => handleLanguage(e.target.value as ProgrammingLanguage)}
@@ -196,6 +205,22 @@ export function TrendingDashboard({ initialPeriod, initialLanguage, initialSort 
                 <option key={value} value={value}>{label}</option>
               ))}
             </select>
+
+            {/* 갯수 선택 — 전체 언어 바로 옆 */}
+            <div className="flex items-center gap-1.5">
+              <Hash className="w-3.5 h-3.5 text-text-tertiary" />
+              <select
+                value={perPage}
+                onChange={(e) => setPerPage(Number(e.target.value))}
+                className="px-2 py-2 text-xs font-medium text-text-secondary bg-surface
+                           border border-line rounded-xl hover:border-line-hover
+                           focus:outline-none focus:border-accent cursor-pointer transition-colors"
+              >
+                {PER_PAGE_OPTIONS.map((n) => (
+                  <option key={n} value={n}>{n}개</option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
       </div>

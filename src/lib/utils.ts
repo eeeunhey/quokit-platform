@@ -14,7 +14,10 @@ export function cn(...inputs: ClassValue[]) {
  */
 export function formatRelativeTime(dateString: string): string {
   try {
-    return formatDistanceToNow(new Date(dateString), { addSuffix: true, locale: ko });
+    const result = formatDistanceToNow(new Date(dateString), { addSuffix: true, locale: ko });
+    // "1분 미만 전" → "방금 전" (더 자연스러운 한국어)
+    if (result.includes('미만')) return '방금 전';
+    return result;
   } catch (e) {
     return dateString;
   }

@@ -45,9 +45,9 @@ export async function getKoreanReadme(repoId: bigint, owner: string, name: strin
           readmeKo: translatedText,
           tokensUsed: 0,
         }
-      }).catch(),
+      }).catch(() => {}),
       safeSetCache(cacheKey, { text: translatedText }, 2592000)
-    ]).catch();
+    ]).catch(() => {});
   }
 
   return { data: finalOutput, source: translatedText ? 'gemini' : 'fallback_original' as const };

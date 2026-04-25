@@ -143,19 +143,23 @@ export function RepoKoreanCard({ repo, rank, sortBy }: Props) {
           </div>
         )}
 
-        {/* ─── 보조 수치 행 ─── */}
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-text-tertiary mb-4">
-          <div className="flex items-center gap-1">
+        {/* ─── 보조 수치 행 (Stars · Forks · 갱신 시각) ─── */}
+        <div className="flex flex-wrap items-center gap-2 mb-4">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 
+                          bg-amber-500/8 border border-amber-500/15 rounded-lg">
             <Star className="w-3.5 h-3.5 text-star" />
-            <span className="data-num">{formatKoreanNumber(repo.stars_count)}</span>
+            <span className="text-xs font-semibold text-star data-num">{formatKoreanNumber(repo.stars_count)}</span>
+            <span className="text-[10px] text-text-tertiary">Stars</span>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 
+                          bg-blue-500/8 border border-blue-500/15 rounded-lg">
             <GitFork className="w-3.5 h-3.5 text-fork" />
-            <span className="data-num">{formatKoreanNumber(repo.forks_count)}</span>
+            <span className="text-xs font-semibold text-fork data-num">{formatKoreanNumber(repo.forks_count)}</span>
+            <span className="text-[10px] text-text-tertiary">Forks</span>
           </div>
           {repo.last_fetched_at && (
-            <div className="flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5" />
+            <div className="inline-flex items-center gap-1 px-2 py-1 text-xs text-text-tertiary ml-auto">
+              <Clock className="w-3 h-3" />
               <span>{formatRelativeTime(String(repo.last_fetched_at))}</span>
             </div>
           )}

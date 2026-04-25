@@ -49,7 +49,13 @@ async function searchSimilar(topics: string[], currentFullName: string) {
     const matched = item.topics.filter((t: string) => topics.includes(t));
     let score = Math.round((matched.length / Math.max(topics.length, 1)) * 100);
     // 점수가 너무 낮아 보이지 않도록 언어가 같으면 가산점 부여 구조 등 추가 가능 (일단 단순 매칭)
-    if (score < 40) score = 40 + Math.floor(Math.random()*20); // 최소 UI 보정 보장
+    if (score < 40) {
+      // 결정론적 보정: repo name의 해시값 기반으로 항상 같은 점수 생성
+      let hash = 0;
+      const key = item.full_name || '';
+      for (let i = 0; i < key.length; i++) hash = Math.imul(31, hash) + key.charCodeAt(i) | 0;
+      score = 40 + (Math.abs(hash) % 20); // 40~59 범위의 고정 보정값
+    }
     
     return {
       github_id: item.id,

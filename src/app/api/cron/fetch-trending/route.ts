@@ -80,17 +80,20 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // 3. 사용량 로깅
+    // 3. 사용량 로깅 — logDate를 날짜 단위로 통일 (밀리초 차이로 upsert 실패 방지)
+    const logDate = new Date();
+    logDate.setHours(0, 0, 0, 0);
+
     await prisma.apiUsageLog.upsert({
       where: {
          serviceName_endpoint_logDate: {
            serviceName: 'github',
            endpoint: '/search/repositories',
-           logDate: new Date()
+           logDate,
          }
       },
       update: { requestsCount: { increment: 3 } },
-      create: { serviceName: 'github', endpoint: '/search/repositories', requestsCount: 3 }
+      create: { serviceName: 'github', endpoint: '/search/repositories', requestsCount: 3, logDate }
     });
 
     return NextResponse.json({ success: true, saved_snapshots: totalSaved });

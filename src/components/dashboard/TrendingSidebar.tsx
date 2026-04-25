@@ -166,7 +166,7 @@ export function TrendingSidebar() {
                 <div className="flex items-center gap-3.5">
                   <div className="w-4 h-4 bg-[#F3F4F6] rounded animate-pulse" />
                   <div className="w-3.5 h-3.5 bg-[#F3F4F6] rounded animate-pulse" />
-                  <div className="h-4 bg-[#F3F4F6] rounded animate-pulse" style={{ width: `${60 + Math.random() * 60}px` }} />
+                  <div className="h-4 bg-[#F3F4F6] rounded animate-pulse" style={{ width: `${[80, 95, 70, 110, 85, 100, 75, 90, 105, 65][i]}px` }} />
                 </div>
                 <div className="h-4 w-10 bg-[#F3F4F6] rounded animate-pulse" />
               </div>

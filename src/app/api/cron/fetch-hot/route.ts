@@ -102,17 +102,20 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // 사용량 로깅
+    // 사용량 로깅 — logDate를 날짜 단위로 통일 (밀리초 차이로 upsert 실패 방지)
+    const logDate = new Date();
+    logDate.setHours(0, 0, 0, 0);
+
     await prisma.apiUsageLog.upsert({
       where: {
         serviceName_endpoint_logDate: {
           serviceName: 'github-scrape',
           endpoint: '/trending',
-          logDate: new Date(),
+          logDate,
         },
       },
       update: { requestsCount: { increment: 3 } },
-      create: { serviceName: 'github-scrape', endpoint: '/trending', requestsCount: 3 },
+      create: { serviceName: 'github-scrape', endpoint: '/trending', requestsCount: 3, logDate },
     });
 
     console.log(`[CRON fetch-hot] ✅ 완료: ${totalSaved}개 스냅샷 저장`);
