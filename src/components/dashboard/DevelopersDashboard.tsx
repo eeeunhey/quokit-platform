@@ -180,38 +180,56 @@ export function DevelopersDashboard() {
           </div>
         )}
 
-        {realDevelopers.map((dev, idx) => (
-          <div 
-            key={dev.id} 
-            onClick={() => setSelectedDev(dev.login)}
-            className="group flex items-center justify-between p-5 sm:px-6 border-b border-[#F3F4F6] last:border-0 hover:bg-[#EEF5EE]/40 transition-colors cursor-pointer"
-          >
-            <div className="flex items-center gap-4 min-w-0">
-              <img 
-                src={dev.avatar} 
-                alt={dev.name} 
-                className="w-[52px] h-[52px] sm:w-[56px] sm:h-[56px] rounded-full ring-2 ring-[#A7C4A0] ring-offset-2 object-cover shrink-0" 
-              />
-              <div className="min-w-0 flex flex-col">
-                <div className="flex items-center gap-2.5">
-                  <h4 className="text-[17px] sm:text-[18px] font-bold text-[#1F2937] leading-tight group-hover:text-[#6F8F72] transition-colors">
-                    {dev.name === dev.login ? dev.login : dev.name}
-                  </h4>
-                  {dev.topLang && dev.topLang !== 'Unknown' && (
-                    <LanguageBadge language={dev.topLang} />
-                  )}
+        {realDevelopers.map((dev, idx) => {
+          const rank = idx + 1;
+          const rankDisplay = rank === 1 ? '🏆 1' : rank === 2 ? '🥈 2' : rank === 3 ? '🥉 3' : rank;
+          const isTop3 = rank <= 3;
+
+          return (
+            <div 
+              key={dev.id} 
+              onClick={() => setSelectedDev(dev.login)}
+              className="group flex items-center justify-between p-5 sm:px-6 border-b border-[#F3F4F6] last:border-0 hover:bg-[#EEF5EE]/40 transition-colors cursor-pointer"
+            >
+              <div className="flex items-center gap-3 sm:gap-5 min-w-0">
+                
+                {/* 1. 랭킹 표기 */}
+                <div className={`w-[48px] flex-shrink-0 text-center font-extrabold ${isTop3 ? 'text-[18px] sm:text-[20px] text-[#1F2937]' : 'text-[16px] sm:text-[18px] text-[#9CA3AF]'}`}>
+                  {rankDisplay}
                 </div>
-                <p className="text-[14px] sm:text-[15px] text-[#6B7280] mt-1.5 flex items-center gap-1.5 truncate">
-                  <span className="text-[#6F8F72]">🔥</span> 트렌딩 스코어 <strong className="text-[#6F8F72] font-bold">{dev.hits.toLocaleString()}</strong>
-                </p>
+
+                {/* 2. 아바타 */}
+                <img 
+                  src={dev.avatar} 
+                  alt={dev.name} 
+                  className="w-[48px] h-[48px] sm:w-[52px] sm:h-[52px] rounded-full ring-2 ring-[#E5E7EB] group-hover:ring-[#A7C4A0] ring-offset-2 object-cover shrink-0 transition-all" 
+                />
+
+                {/* 3. 이름 및 뱃지 & 스코어 */}
+                <div className="min-w-0 flex flex-col ml-1 sm:ml-2">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                    <h4 className="text-[17px] sm:text-[18px] font-bold text-[#1F2937] leading-tight group-hover:text-[#6F8F72] transition-colors truncate">
+                      {dev.name === dev.login ? dev.login : dev.name}
+                    </h4>
+                    {dev.topLang && dev.topLang !== 'Unknown' && (
+                      <LanguageBadge language={dev.topLang} />
+                    )}
+                  </div>
+                  <p className="text-[14px] sm:text-[15px] text-[#6B7280] mt-1.5 flex items-center gap-1.5 truncate">
+                    <span className="text-[#EF4444]">🔥</span> 
+                    <strong className="text-[#1F2937] font-bold">{dev.hits.toLocaleString()}</strong> Trending Score
+                  </p>
+                </div>
+
+              </div>
+              
+              {/* 4. 우측 화살표 (Hover시 등장) */}
+              <div className="hidden sm:flex text-[13px] text-[#6F8F72] font-semibold items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0 duration-300">
+                프로필 보기 <ExternalLink className="w-4 h-4" />
               </div>
             </div>
-            
-            <div className="hidden sm:flex text-[13px] text-[#6F8F72] font-semibold items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity translate-x-2 group-hover:translate-x-0 duration-300">
-              프로필 보기 <ExternalLink className="w-3.5 h-3.5" />
-            </div>
-          </div>
-        ))}
+          );
+        })}
         
         {!isLoading && realDevelopers.length === 0 && (
           <div className="py-20 text-center text-[#6B7280]">
