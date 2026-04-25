@@ -19,7 +19,7 @@ export const maxDuration = 60;
  */
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const source = searchParams.get('source') || 'hot';  // 'hot' | 'rising'
+  const source = searchParams.get('source') || 'rising';  // 'rising' | 'hot'
   const period = (searchParams.get('period') || 'daily') as TrendingPeriod;
   const language = (searchParams.get('language') || 'all') as ProgrammingLanguage;
   const page = parseInt(searchParams.get('page') || '1', 10);
@@ -122,13 +122,23 @@ async function fetchHotData(
   });
 
   if (snapshots.length > 0) {
-    const latestDate = snapshots[0].snapshotDate.toISOString();
-    const validSnapshots = snapshots.filter(s => s.snapshotDate.toISOString() === latestDate);
+    // snapshotDate는 각 레포마다 밀리초 단위로 다르므로, 날짜(YYYY-MM-DD) 기준으로 비교
+    const latestDateStr = snapshots[0].snapshotDate.toISOString().slice(0, 10);
+    const validSnapshots = snapshots.filter(s => s.snapshotDate.toISOString().slice(0, 10) === latestDateStr);
     
+    // 같은 repoId가 중복될 수 있으므로 최신 스냅샷만 유지
+    const seenRepoIds = new Set<string>();
+    const deduped = validSnapshots.filter(s => {
+      const key = String(s.repoId);
+      if (seenRepoIds.has(key)) return false;
+      seenRepoIds.add(key);
+      return true;
+    });
+
     // language 필터 적용 (DB에는 'all'로 저장, 프론트에서 필터링)
-    let filtered = validSnapshots;
+    let filtered = deduped;
     if (language !== 'all') {
-      filtered = validSnapshots.filter(s => 
+      filtered = deduped.filter(s => 
         s.repository.language?.toLowerCase() === language.toLowerCase()
       );
     }
@@ -217,10 +227,20 @@ async function fetchRisingData(
   });
 
   if (snapshots.length > 0) {
-    const latestDate = snapshots[0].snapshotDate.toISOString();
-    const validSnapshots = snapshots.filter(s => s.snapshotDate.toISOString() === latestDate);
+    // snapshotDate는 각 레포마다 밀리초 단위로 다르므로, 날짜(YYYY-MM-DD) 기준으로 비교
+    const latestDateStr = snapshots[0].snapshotDate.toISOString().slice(0, 10);
+    const validSnapshots = snapshots.filter(s => s.snapshotDate.toISOString().slice(0, 10) === latestDateStr);
 
-    return validSnapshots.map(s => ({
+    // 같은 repoId가 중복될 수 있으므로 최신 스냅샷만 유지
+    const seenRepoIds = new Set<string>();
+    const deduped = validSnapshots.filter(s => {
+      const key = String(s.repoId);
+      if (seenRepoIds.has(key)) return false;
+      seenRepoIds.add(key);
+      return true;
+    });
+
+    return deduped.map(s => ({
       id: Number(s.repository.id),
       github_id: Number(s.repository.githubId),
       full_name: s.repository.fullName,

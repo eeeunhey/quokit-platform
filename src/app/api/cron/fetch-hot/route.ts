@@ -35,6 +35,10 @@ export async function GET(request: NextRequest) {
   let totalSaved = 0;
 
   try {
+    // 같은 크론 실행 내 모든 스냅샷은 동일한 날짜를 공유해야 함
+    const snapshotDate = new Date();
+    snapshotDate.setHours(0, 0, 0, 0);
+
     for (const since of periods) {
       const scraped = await scrapeTrendingRepos(since);
       
@@ -85,7 +89,7 @@ export async function GET(request: NextRequest) {
                 repoId: repository.id,
                 currentRank: rank,
                 gainedStars: item.gainedStars,
-                snapshotDate: new Date(),
+                snapshotDate,
               },
             });
             totalSaved++;

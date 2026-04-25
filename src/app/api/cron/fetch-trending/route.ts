@@ -21,6 +21,10 @@ export async function GET(request: NextRequest) {
   let totalSaved = 0;
 
   try {
+    // 같은 크론 실행 내 모든 스냅샷은 동일한 날짜를 공유해야 함
+    const snapshotDate = new Date();
+    snapshotDate.setHours(0, 0, 0, 0);
+
     for (const period of periods) {
       // 1. GitHub API 호출
       const items = await fetchTrendingRepositories(period, language);
@@ -65,7 +69,7 @@ export async function GET(request: NextRequest) {
               language: language,
               repoId: repository.id,
               currentRank: rank,
-              snapshotDate: new Date(),
+              snapshotDate,
               // (Optional) gainedStars는 상세 로직 필요시 이전 스냅샷과 비교
             }
           });

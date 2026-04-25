@@ -34,17 +34,6 @@ const LANGUAGES: { value: ProgrammingLanguage; label: string }[] = [
 ];
 
 const SOURCE_CONFIG = {
-  hot: {
-    icon: Flame,
-    label: 'Hot',
-    color: 'text-orange-500',
-    activeBg: 'bg-orange-500/10 border-orange-500/30',
-    heading: '🔥 지금 뜨는 레포',
-    description: (period: TrendingPeriod) => {
-      const p = period === 'daily' ? '오늘' : period === 'weekly' ? '이번 주' : '이번 달';
-      return `${p} 스타가 급상승 중인 프로젝트 — 신규·기존 레포 모두 포함`;
-    },
-  },
   rising: {
     icon: Sparkles,
     label: 'Rising',
@@ -56,11 +45,22 @@ const SOURCE_CONFIG = {
       return `${p} 새로 만들어져서 빠르게 주목받기 시작한 프로젝트`;
     },
   },
+  hot: {
+    icon: Flame,
+    label: 'Hot',
+    color: 'text-orange-500',
+    activeBg: 'bg-orange-500/10 border-orange-500/30',
+    heading: '🔥 지금 뜨는 레포',
+    description: (period: TrendingPeriod) => {
+      const p = period === 'daily' ? '오늘' : period === 'weekly' ? '이번 주' : '이번 달';
+      return `${p} 스타가 급상승 중인 프로젝트 — 신규·기존 레포 모두 포함`;
+    },
+  },
 } as const;
 
 export function TrendingDashboard({ initialPeriod, initialLanguage, initialSort }: Props) {
   const router = useRouter();
-  const [source, setSource] = useState<DataSource>('hot');
+  const [source, setSource] = useState<DataSource>('rising');
   const [period, setPeriod] = useState(initialPeriod);
   const [language, setLanguage] = useState(initialLanguage);
   const [sort, setSort] = useState(initialSort);
@@ -69,7 +69,7 @@ export function TrendingDashboard({ initialPeriod, initialLanguage, initialSort 
 
   const updateURL = useCallback((s: DataSource, p: TrendingPeriod, l: ProgrammingLanguage, so: 'stars' | 'forks') => {
     const params = new URLSearchParams();
-    if (s !== 'hot') params.set('source', s);
+    if (s !== 'rising') params.set('source', s);
     if (p !== 'daily') params.set('period', p);
     if (l !== 'all') params.set('language', l);
     if (so !== 'stars') params.set('sort', so);
@@ -121,7 +121,7 @@ export function TrendingDashboard({ initialPeriod, initialLanguage, initialSort 
           {/* Row 1: 데이터 소스 토글 (🔥 Hot / ✨ Rising) */}
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1 p-1 bg-surface-active rounded-xl border border-line">
-              {(['hot', 'rising'] as const).map((s) => {
+              {(['rising', 'hot'] as const).map((s) => {
                 const c = SOURCE_CONFIG[s];
                 const Icon = c.icon;
                 const isActive = source === s;
