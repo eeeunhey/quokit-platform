@@ -87,11 +87,13 @@ export function TrendingDashboard({ initialPeriod, initialLanguage, initialSort 
         const json = await res.json();
         let data: TrendingRepository[] = json.data || [];
         
-        // Rising 모드에서만 Stars/Forks 정렬 적용
-        if (source === 'rising' && sort === 'forks') {
+        // Stars/Forks 정렬 적용 (두 모드 모두)
+        if (sort === 'forks') {
           data = [...data].sort((a, b) => b.forks_count - a.forks_count);
+        } else if (source === 'hot') {
+          // Hot은 gained_stars 기준 내림차순 (API에서 이미 정렬되어 오지만 안전하게)
+          data = [...data].sort((a, b) => (b.gained_stars || 0) - (a.gained_stars || 0));
         }
-        // Hot 모드에서는 gained_stars 기준으로 이미 정렬됨
         
         if (!cancelled) setRepos(data);
       } catch {
@@ -142,8 +144,7 @@ export function TrendingDashboard({ initialPeriod, initialLanguage, initialSort 
               })}
             </div>
 
-            {/* Rising 모드에서만 Stars/Forks 토글 표시 */}
-            {source === 'rising' && (
+            {/* Stars/Forks 정렬 토글 */}
               <div className="flex items-center gap-1 p-1 bg-surface-active rounded-xl border border-line ml-auto">
                 <button
                   onClick={() => handleSort('stars')}
@@ -166,7 +167,6 @@ export function TrendingDashboard({ initialPeriod, initialLanguage, initialSort 
                   Forks
                 </button>
               </div>
-            )}
           </div>
 
           {/* Row 2: 기간 + 언어 필터 */}
