@@ -25,11 +25,20 @@ export async function GET(request: NextRequest) {
   const page = parseInt(searchParams.get('page') || '1', 10);
   const perPage = parseInt(searchParams.get('per_page') || '20', 10);
 
+  const nocache = searchParams.get('nocache') === '1';
+
   const cacheKey = `trending:${source}:${period}:${language}:${page}:${perPage}`;
 
   try {
-    // 1. Redis 캐시 계층 응답
-    const cachedData = await safeGetCache<TrendingRepository[]>(cacheKey);
+    // 1. Redis 캐시 계층 응답 (nocache=1이면 캐시 스킵 + 기존 캐시 삭제)
+    if (nocache) {
+      const { redis } = await import('@/lib/redis');
+      if (redis) {
+        try { await redis.del(cacheKey); } catch {}
+      }
+    }
+
+    const cachedData = nocache ? null : await safeGetCache<TrendingRepository[]>(cacheKey);
     if (cachedData) {
       return NextResponse.json({
         success: true,
