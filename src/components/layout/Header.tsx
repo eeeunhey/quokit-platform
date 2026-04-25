@@ -1,11 +1,23 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { Search } from 'lucide-react';
 
 export function Header() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = searchQuery.trim();
+    if (q) {
+      router.push(`/search?q=${encodeURIComponent(q)}`);
+      setSearchQuery('');
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white border-b border-[#E8ECE8] transition-colors duration-300">
@@ -36,12 +48,14 @@ export function Header() {
             </div>
           </nav>
 
-          {/* 3. 우측: 확장된 검색 영역 */}
+          {/* 3. 우측: 검색 영역 (실제 동작) */}
           <div className="w-full md:flex-1 md:max-w-[520px] md:ml-auto">
-            <div className="relative group w-full">
+            <form onSubmit={handleSearch} className="relative group w-full">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CA3AF] group-focus-within:text-[#6F8F72] transition-colors" />
               <input 
                 type="text" 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="저장소, 개발자, 기술 스택 검색" 
                 className="w-full h-[48px] md:h-[52px] pl-11 pr-4 bg-[#F7F8FA] border border-[#E5E7EB] rounded-[16px] text-[15px] text-[#1F2937] placeholder:text-[#9CA3AF] focus:outline-none focus:bg-white focus:border-[#A7C4A0] focus:ring-4 focus:ring-[#EEF5EE] transition-all shadow-sm"
               />
@@ -50,7 +64,7 @@ export function Header() {
                 <kbd className="px-1.5 py-0.5 text-[10px] font-semibold text-[#6B7280] bg-white border border-[#E5E7EB] rounded-md shadow-sm">⌘</kbd>
                 <kbd className="px-1.5 py-0.5 text-[10px] font-semibold text-[#6B7280] bg-white border border-[#E5E7EB] rounded-md shadow-sm">K</kbd>
               </div>
-            </div>
+            </form>
           </div>
 
         </div>
