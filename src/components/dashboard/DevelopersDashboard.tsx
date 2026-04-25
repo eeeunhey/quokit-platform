@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Search, TrendingUp, X, Trophy, Code2, CalendarRange, Users, ChevronDown, Check } from 'lucide-react';
+import { Search, TrendingUp, X, Trophy, Code2, CalendarRange, Users, ChevronDown, Check, ExternalLink } from 'lucide-react';
 import { DeveloperDetail } from '@/components/developer/DeveloperDetail';
+import { LanguageBadge } from '@/components/ui/LanguageBadge';
 
 // ----------------------------------------------------------------------
 // 커스텀 드롭다운 훅 및 컴포넌트 
@@ -183,7 +184,7 @@ export function DevelopersDashboard() {
           <div 
             key={dev.id} 
             onClick={() => setSelectedDev(dev.login)}
-            className="group flex items-center p-5 sm:px-6 border-b border-[#F3F4F6] last:border-0 hover:bg-[#F9FAFB] transition-colors cursor-pointer"
+            className="group flex items-center justify-between p-5 sm:px-6 border-b border-[#F3F4F6] last:border-0 hover:bg-[#EEF5EE]/40 transition-colors cursor-pointer"
           >
             <div className="flex items-center gap-4 min-w-0">
               <img 
@@ -192,13 +193,22 @@ export function DevelopersDashboard() {
                 className="w-[52px] h-[52px] sm:w-[56px] sm:h-[56px] rounded-full ring-2 ring-[#A7C4A0] ring-offset-2 object-cover shrink-0" 
               />
               <div className="min-w-0 flex flex-col">
-                <h4 className="text-[17px] sm:text-[18px] font-medium text-[#1F2937] leading-tight group-hover:text-[#6F8F72] transition-colors">
-                  {dev.name === dev.login ? dev.login : dev.name}
-                </h4>
-                <p className="text-[14px] sm:text-[15px] text-[#6B7280] mt-1 truncate">
-                  GitHub에서 총 <strong className="text-[#6F8F72] font-bold">{dev.hits.toLocaleString()}</strong> 일 동안 인기 트렌드에 선정되었습니다.
+                <div className="flex items-center gap-2.5">
+                  <h4 className="text-[17px] sm:text-[18px] font-bold text-[#1F2937] leading-tight group-hover:text-[#6F8F72] transition-colors">
+                    {dev.name === dev.login ? dev.login : dev.name}
+                  </h4>
+                  {dev.topLang && dev.topLang !== 'Unknown' && (
+                    <LanguageBadge language={dev.topLang} />
+                  )}
+                </div>
+                <p className="text-[14px] sm:text-[15px] text-[#6B7280] mt-1.5 flex items-center gap-1.5 truncate">
+                  <span className="text-[#6F8F72]">🔥</span> 트렌딩 스코어 <strong className="text-[#6F8F72] font-bold">{dev.hits.toLocaleString()}</strong>
                 </p>
               </div>
+            </div>
+            
+            <div className="hidden sm:flex text-[13px] text-[#6F8F72] font-semibold items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity translate-x-2 group-hover:translate-x-0 duration-300">
+              프로필 보기 <ExternalLink className="w-3.5 h-3.5" />
             </div>
           </div>
         ))}
