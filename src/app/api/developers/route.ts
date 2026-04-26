@@ -30,8 +30,8 @@ export async function GET(request: Request) {
       ...(GITHUB_TOKEN ? { Authorization: `Bearer ${GITHUB_TOKEN}` } : {}),
     };
 
-    // 실시간 GitHub 인기 레포지토리 검색하여 소유자를 트렌딩 개발자로 표출
-    const url = `${GITHUB_API}/search/repositories?q=${query}&sort=stars&order=desc&per_page=${limit}`;
+    // 항상 100개를 가져와서 모수(데이터 풀)를 고정해야만 개수를 변경해도 순위가 뒤섞이지 않습니다.
+    const url = `${GITHUB_API}/search/repositories?q=${query}&sort=stars&order=desc&per_page=100`;
     
     const res = await fetch(url, { headers, next: { revalidate: 3600 } });
     if (!res.ok) throw new Error(`GitHub API error: ${res.status}`);
