@@ -119,7 +119,7 @@ async function fetchHotData(
     where: {
       period: snapshotPeriod,
       language: 'all',
-      snapshotDate: { gte: new Date(today.getTime() - 48 * 60 * 60 * 1000) },
+      snapshotDate: { gte: today },
     },
     include: { repository: true },
     orderBy: [
@@ -130,7 +130,7 @@ async function fetchHotData(
     take: perPage,
   });
 
-  if (snapshots.length > 0) {
+  if (snapshots.length >= 10) {
     // snapshotDate는 각 레포마다 밀리초 단위로 다르므로, 날짜(YYYY-MM-DD) 기준으로 비교
     const latestDateStr = snapshots[0].snapshotDate.toISOString().slice(0, 10);
     const validSnapshots = snapshots.filter(s => s.snapshotDate.toISOString().slice(0, 10) === latestDateStr);
@@ -224,7 +224,7 @@ async function fetchRisingData(
     where: {
       period: period,
       language: language,
-      snapshotDate: { gte: new Date(today.getTime() - 48 * 60 * 60 * 1000) },
+      snapshotDate: { gte: today },
     },
     include: { repository: true },
     orderBy: [
@@ -235,7 +235,7 @@ async function fetchRisingData(
     take: perPage,
   });
 
-  if (snapshots.length > 0) {
+  if (snapshots.length >= 10) {
     // snapshotDate는 각 레포마다 밀리초 단위로 다르므로, 날짜(YYYY-MM-DD) 기준으로 비교
     const latestDateStr = snapshots[0].snapshotDate.toISOString().slice(0, 10);
     const validSnapshots = snapshots.filter(s => s.snapshotDate.toISOString().slice(0, 10) === latestDateStr);
