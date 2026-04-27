@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
           const repository = await prisma.repository.upsert({
             where: { fullName: item.fullName },
             create: {
-              githubId: 0, // 스크래핑에서는 github_id를 알 수 없으므로 0 (나중에 API로 갱신 가능)
+              githubId: -(Date.now() + i + Math.floor(Math.random() * 1000000)), // 고유 제약조건을 피하기 위한 임시 음수 ID
               fullName: item.fullName,
               name: item.name,
               ownerLogin: item.owner,

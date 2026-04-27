@@ -34,9 +34,9 @@ export async function GET(request: NextRequest) {
         const item = items[i];
         const rank = i + 1;
 
-        // Repository Upsert
+        // Repository Upsert (스크래핑 로직과 동일하게 fullName 기준으로 병합)
         const repository = await prisma.repository.upsert({
-          where: { githubId: item.id },
+          where: { fullName: item.full_name },
           create: {
             githubId: item.id,
             fullName: item.full_name,
