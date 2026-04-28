@@ -61,7 +61,7 @@ const STATIC_FALLBACK: TopicItem[] = [
  *   - 기간별 데이터 로컬 캐시 (탭 전환 시 재요청 없음)
  */
 export function TrendingSidebar() {
-  const [period, setPeriod] = useState<TopicPeriod>('yearly');
+  const [period, setPeriod] = useState<TopicPeriod>('weekly');
   const [topics, setTopics] = useState<TopicItem[]>(STATIC_FALLBACK);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
