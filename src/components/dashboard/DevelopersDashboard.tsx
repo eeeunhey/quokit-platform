@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Search, TrendingUp, X, Trophy, Code2, CalendarRange, Users, ChevronDown, Check, ExternalLink } from 'lucide-react';
+import { TrendingUp, X, Code2, CalendarRange, Users, ChevronDown, Check, ExternalLink, Flame, ArrowUpRight } from 'lucide-react';
 import { DeveloperDetail } from '@/components/developer/DeveloperDetail';
 import { LanguageBadge } from '@/components/ui/LanguageBadge';
 
@@ -38,18 +38,18 @@ function CustomDropdown({ icon: Icon, options, value, onChange, className = '' }
     <div className={`relative ${className}`} ref={ref}>
       <button 
         onClick={() => setOpen(!open)}
-        className={`w-full flex items-center justify-between px-4 py-2.5 bg-white border rounded-[12px] text-[14px] font-semibold transition-all duration-200 shadow-sm
-          ${open ? 'border-[#A7C4A0] ring-4 ring-[#EEF5EE] text-[#1F2937]' : 'border-[#E5E7EB] text-[#4B5563] hover:border-[#D1D5DB] hover:text-[#1F2937]'}`}
+        className={`w-full flex items-center justify-between px-3.5 py-2 bg-white border rounded-xl text-[13px] font-medium transition-all duration-200
+          ${open ? 'border-[#A7C4A0] ring-3 ring-[#EEF5EE] text-[#374151]' : 'border-[#E5E7EB] text-[#6B7280] hover:border-[#D1D5DB] hover:text-[#374151]'}`}
       >
-        <span className="flex items-center gap-2.5">
-          {Icon && <Icon className={`w-[18px] h-[18px] ${open ? 'text-[#6F8F72]' : 'text-[#9CA3AF]'}`} />}
+        <span className="flex items-center gap-2">
+          {Icon && <Icon className={`w-4 h-4 ${open ? 'text-[#6F8F72]' : 'text-[#9CA3AF]'}`} />}
           {selectedOption.label}
         </span>
-        <ChevronDown className={`w-4 h-4 ml-3 transition-transform duration-200 ${open ? 'rotate-180 text-[#6F8F72]' : 'text-[#9CA3AF]'}`} />
+        <ChevronDown className={`w-3.5 h-3.5 ml-2 transition-transform duration-200 ${open ? 'rotate-180 text-[#6F8F72]' : 'text-[#C6C6C6]'}`} />
       </button>
 
       {open && (
-        <div className="absolute z-50 top-full left-0 mt-1.5 w-full min-w-[160px] bg-white border border-[#E8ECE8] rounded-[16px] shadow-[0_10px_40px_-10px_rgba(0,0,0,0.08)] py-1.5 animate-in fade-in zoom-in-95 duration-200 origin-top overflow-hidden">
+        <div className="absolute z-50 top-full left-0 mt-1.5 w-full min-w-[150px] bg-white border border-[#E8ECE8] rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.08)] py-1 animate-in fade-in zoom-in-95 duration-200 origin-top overflow-hidden">
           <div className="max-h-[280px] overflow-y-auto no-scrollbar">
             {options.map((opt) => {
               const isSelected = value === opt.value;
@@ -57,11 +57,11 @@ function CustomDropdown({ icon: Icon, options, value, onChange, className = '' }
                 <button
                   key={opt.value}
                   onClick={() => { onChange(opt.value); setOpen(false); }}
-                  className={`w-full text-left px-4 py-2.5 text-[14px] flex items-center justify-between transition-colors
-                    ${isSelected ? 'bg-[#F8FAF8] text-[#355E3B] font-bold' : 'text-[#4B5563] font-medium hover:bg-[#F9FAFB] hover:text-[#1F2937]'}`}
+                  className={`w-full text-left px-3.5 py-2 text-[13px] flex items-center justify-between transition-colors
+                    ${isSelected ? 'bg-[#F8FAF8] text-[#355E3B] font-semibold' : 'text-[#6B7280] font-normal hover:bg-[#F9FAFB] hover:text-[#374151]'}`}
                 >
                   {opt.label}
-                  {isSelected && <Check className="w-4 h-4 text-[#6F8F72]" />}
+                  {isSelected && <Check className="w-3.5 h-3.5 text-[#6F8F72]" />}
                 </button>
               );
             })}
@@ -128,132 +128,190 @@ export function DevelopersDashboard() {
   ];
 
   const countOptions = [
-    { label: '25명 보기', value: '25' },
-    { label: '50명 보기', value: '50' },
-    { label: '100명 보기', value: '100' },
+    { label: '25명', value: '25' },
+    { label: '50명', value: '50' },
+    { label: '100명', value: '100' },
   ];
+
+  // 최고 점수 (Progress bar 비율 계산용)
+  const maxHits = realDevelopers.length > 0 ? realDevelopers[0]?.hits || 1 : 1;
 
   return (
     <div className="w-full max-w-[1280px] mx-auto pb-10">
       
-      {/* 1. 상단 타이틀 & 필터 영역 */}
-      <div className="mb-8 pt-2 md:pt-4 border-b border-[#F3F4F6] pb-8">
-        <h1 className="text-3xl font-extrabold tracking-tight text-[#1F2937] flex items-center gap-3">
-          트렌딩 개발자
-          <Trophy className="w-[26px] h-[26px] text-[#6F8F72] mt-1" />
-        </h1>
-        <p className="text-[15px] sm:text-[16px] text-[#6B7280] mt-3 font-medium">
-          GitHub 트렌딩에 자주 등장한 개발자를 확인할 수 있습니다.
-        </p>
+      {/* ───── 1. 상단 타이틀 & 필터 ───── */}
+      <div className="mb-6 pt-2 md:pt-4">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-[#1F2937] flex items-center gap-2.5">
+              트렌딩 개발자
+              <TrendingUp className="w-5 h-5 text-[#6F8F72]" />
+            </h1>
+            <p className="text-[13px] text-[#9CA3AF] mt-1.5 font-normal">
+              GitHub 트렌딩에 자주 등장하는 개발자 순위
+            </p>
+          </div>
+        </div>
         
-        <div className="mt-8 flex flex-col sm:flex-row items-center gap-3 w-full max-w-3xl">
+        <div className="flex flex-wrap items-center gap-2">
           <CustomDropdown 
             icon={CalendarRange}
             options={periodOptions} 
             value={period} 
             onChange={setPeriod} 
-            className="w-full sm:w-[160px]"
+            className="w-[130px]"
           />
           <CustomDropdown 
             icon={Code2}
             options={languageOptions} 
             value={language} 
             onChange={setLanguage} 
-            className="w-full sm:w-[180px]"
+            className="w-[140px]"
           />
           <CustomDropdown 
             icon={Users}
             options={countOptions} 
             value={displayCount} 
             onChange={setDisplayCount} 
-            className="w-full sm:w-[150px]"
+            className="w-[110px]"
           />
         </div>
       </div>
 
-      {/* 2. 리스트 영역 */}
-      <div className="bg-white border text-left border-[#E5E7EB] rounded-[16px] overflow-hidden shadow-sm relative min-h-[300px]">
+      {/* ───── 2. 리스트 카드 ───── */}
+      <div className="bg-white border border-[#E8ECE8] rounded-2xl overflow-hidden shadow-sm relative min-h-[300px]">
         {isLoading && (
           <div className="absolute inset-0 z-10 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center">
-             <div className="w-8 h-8 border-4 border-[#EEF5EE] border-t-[#6F8F72] rounded-full animate-spin"></div>
-             <p className="text-sm font-medium text-[#6B7280] mt-3">실제 데이터를 동기화 중입니다...</p>
+             <div className="w-6 h-6 border-[3px] border-[#EEF5EE] border-t-[#6F8F72] rounded-full animate-spin"></div>
+             <p className="text-xs text-[#9CA3AF] mt-3">불러오는 중...</p>
           </div>
         )}
 
+        {/* 테이블 헤더 */}
+        <div className="hidden sm:flex items-center px-6 py-3 bg-[#FAFBFA] border-b border-[#F0F0F0] text-[11px] font-medium text-[#9CA3AF] uppercase tracking-wider">
+          <span className="w-[44px] text-center shrink-0">#</span>
+          <span className="flex-1 pl-16">개발자</span>
+          <span className="w-[200px] text-right pr-2">트렌딩 점수</span>
+        </div>
+
         {realDevelopers.map((dev, idx) => {
           const rank = idx + 1;
-          const rankDisplay = rank === 1 ? '🏆 1' : rank === 2 ? '🥈 2' : rank === 3 ? '🥉 3' : rank;
           const isTop3 = rank <= 3;
+          const hitsRatio = Math.max(0.08, dev.hits / maxHits); // 최소 8% 바
 
           return (
             <div 
               key={dev.id} 
               onClick={() => setSelectedDev(dev.login)}
-              className="group flex items-center justify-between p-5 sm:px-6 border-b border-[#F3F4F6] last:border-0 hover:bg-[#EEF5EE]/40 transition-colors cursor-pointer"
+              className="group flex items-center px-4 sm:px-6 py-4 border-b border-[#F5F5F5] last:border-0 hover:bg-[#F8FAF8] transition-colors cursor-pointer"
             >
-              <div className="flex items-center gap-3 sm:gap-5 min-w-0">
-                
-                {/* 1. 랭킹 표기 */}
-                <div className={`w-[48px] flex-shrink-0 text-center font-extrabold ${isTop3 ? 'text-[18px] sm:text-[20px] text-[#1F2937]' : 'text-[16px] sm:text-[18px] text-[#9CA3AF]'}`}>
-                  {rankDisplay}
-                </div>
-
-                {/* 2. 아바타 */}
-                <img 
-                  src={dev.avatar} 
-                  alt={dev.name} 
-                  className="w-[48px] h-[48px] sm:w-[52px] sm:h-[52px] rounded-full ring-2 ring-[#E5E7EB] group-hover:ring-[#A7C4A0] ring-offset-2 object-cover shrink-0 transition-all" 
-                />
-
-                {/* 3. 이름 및 뱃지 & 스코어 */}
-                <div className="min-w-0 flex flex-col ml-1 sm:ml-2">
-                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                    <h4 className="text-[17px] sm:text-[18px] font-bold text-[#1F2937] leading-tight group-hover:text-[#6F8F72] transition-colors truncate">
-                      {dev.name === dev.login ? dev.login : dev.name}
-                    </h4>
-                    {dev.topLang && dev.topLang !== 'Unknown' && (
-                      <LanguageBadge language={dev.topLang} />
-                    )}
-                  </div>
-                  <p className="text-[14px] sm:text-[15px] text-[#6B7280] mt-1.5 flex items-center gap-1.5 truncate">
-                    <span className="text-[#EF4444]">🔥</span> 
-                    <strong className="text-[#1F2937] font-bold">{dev.hits.toLocaleString()}</strong> Trending Score
-                  </p>
-                </div>
-
+              {/* 1. 순위 */}
+              <div className="w-[44px] shrink-0 flex items-center justify-center">
+                {rank === 1 ? (
+                  <span className="text-lg">🥇</span>
+                ) : rank === 2 ? (
+                  <span className="text-lg">🥈</span>
+                ) : rank === 3 ? (
+                  <span className="text-lg">🥉</span>
+                ) : (
+                  <span className="text-[14px] font-medium text-[#C4C4C4] tabular-nums">
+                    {rank}
+                  </span>
+                )}
               </div>
-              
-              {/* 4. 우측 화살표 (Hover시 등장) */}
-              <div className="hidden sm:flex text-[13px] text-[#6F8F72] font-semibold items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0 duration-300">
-                프로필 보기 <ExternalLink className="w-4 h-4" />
+
+              {/* 2. 아바타 */}
+              <img 
+                src={dev.avatar} 
+                alt={dev.name} 
+                className={`w-10 h-10 rounded-full object-cover shrink-0 ml-1 transition-all duration-200
+                  ${isTop3 
+                    ? 'ring-2 ring-[#E5E7EB] group-hover:ring-[#A7C4A0] ring-offset-1' 
+                    : 'ring-1 ring-[#F0F0F0] group-hover:ring-[#D4E4D5]'
+                  }`}
+              />
+
+              {/* 3. 이름 & 언어 */}
+              <div className="min-w-0 flex flex-col ml-3.5">
+                <div className="flex items-center gap-2">
+                  <span className={`text-[14px] leading-tight truncate transition-colors
+                    ${isTop3 
+                      ? 'font-semibold text-[#1F2937] group-hover:text-[#355E3B]' 
+                      : 'font-medium text-[#374151] group-hover:text-[#355E3B]'
+                    }`}>
+                    {dev.name === dev.login ? dev.login : dev.name}
+                  </span>
+                  {dev.topLang && dev.topLang !== 'Unknown' && (
+                    <LanguageBadge language={dev.topLang} />
+                  )}
+                </div>
+                <span className="text-[11px] text-[#B0B0B0] mt-0.5 font-mono truncate">
+                  @{dev.login}
+                </span>
+              </div>
+
+              {/* 4. 트렌딩 점수 — 프로그레스 바 */}
+              <div className="hidden sm:flex items-center gap-3 ml-auto w-[200px] justify-end">
+                <div className="w-[100px] h-[6px] bg-[#F3F4F6] rounded-full overflow-hidden">
+                  <div 
+                    className={`h-full rounded-full transition-all duration-500
+                      ${rank === 1 
+                        ? 'bg-gradient-to-r from-[#6F8F72] to-[#A7C4A0]' 
+                        : rank <= 3 
+                          ? 'bg-gradient-to-r from-[#8FAF8F] to-[#BDD4BD]' 
+                          : 'bg-[#D4E4D5]'
+                      }`}
+                    style={{ width: `${hitsRatio * 100}%` }}
+                  />
+                </div>
+                <div className="flex items-center gap-1 shrink-0">
+                  <Flame className="w-3 h-3 text-[#E8875B]" />
+                  <span className={`text-[13px] tabular-nums
+                    ${isTop3 ? 'font-semibold text-[#374151]' : 'font-normal text-[#6B7280]'}`}>
+                    {dev.hits.toLocaleString()}
+                  </span>
+                </div>
+              </div>
+
+              {/* 모바일: 점수 */}
+              <div className="flex sm:hidden items-center gap-1 ml-auto shrink-0">
+                <Flame className="w-3 h-3 text-[#E8875B]" />
+                <span className="text-[12px] text-[#6B7280] tabular-nums">
+                  {dev.hits.toLocaleString()}
+                </span>
+              </div>
+
+              {/* 5. 호버 화살표 (데스크탑) */}
+              <div className="hidden sm:flex items-center ml-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 shrink-0">
+                <ArrowUpRight className="w-4 h-4 text-[#A7C4A0]" />
               </div>
             </div>
           );
         })}
         
         {!isLoading && realDevelopers.length === 0 && (
-          <div className="py-20 text-center text-[#6B7280]">
-            데이터가 없습니다.
+          <div className="py-20 text-center text-[#9CA3AF] text-sm">
+            해당 조건의 개발자 데이터가 없습니다.
           </div>
         )}
       </div>
 
-      {/* 3. 개발자 상세 정보 모달 (거대한 전체 화면 폼 & 외부 투명 오버레이 처리) */}
+      {/* ───── 3. 개발자 상세 모달 ───── */}
       {selectedDev && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-8">
           <div 
-            className="absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity" 
+            className="absolute inset-0 bg-black/25 backdrop-blur-sm transition-opacity" 
             onClick={() => setSelectedDev(null)} 
           />
-          <div className="relative bg-[#FAFBFB] w-full max-w-[1400px] h-[95vh] rounded-[20px] sm:rounded-[32px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between px-6 py-5 sm:py-6 border-b border-[#E5E7EB] bg-white z-10 shrink-0 shadow-sm">
-              <span className="font-extrabold text-[16px] sm:text-[18px] tracking-tight text-[#1F2937]">개발자 상세 프로필</span>
+          <div className="relative bg-white w-full max-w-[1400px] h-[92vh] rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.2)] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#F0F0F0] bg-white z-10 shrink-0">
+              <span className="font-semibold text-[15px] tracking-tight text-[#374151]">개발자 프로필</span>
               <button 
                 onClick={() => setSelectedDev(null)} 
-                className="p-2 bg-[#F7F8FA] hover:bg-[#E5E7EB] rounded-full transition-colors text-[#6B7280] hover:text-[#1F2937]"
+                className="p-1.5 hover:bg-[#F3F4F6] rounded-lg transition-colors text-[#9CA3AF] hover:text-[#374151]"
                 aria-label="닫기"
               >
-                <X className="w-6 h-6" />
+                <X className="w-5 h-5" />
               </button>
             </div>
             <div className="flex-1 overflow-y-auto px-5 py-8 sm:p-12 scroll-smooth bg-white">
