@@ -55,7 +55,13 @@ export function RepoKoreanCard({ repo, rank, sortBy }: Props) {
   if (!koreanHeadline) koreanHeadline = koreanTitle + ' - ' + stripMarkdown(repo.description_ko?.slice(0, 30) || '설명 준비 중');
 
   return (
-    <article className="surface-card overflow-hidden group animate-in">
+    <article
+      className="surface-card overflow-hidden group animate-in cursor-pointer hover:border-line-hover transition-colors"
+      onClick={() => setModalOpen(true)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setModalOpen(true); }}
+    >
       {/* ======= 기본 펼침 영역 (항상 노출) ======= */}
       <div className="px-5 pt-5 pb-4">
         
@@ -79,13 +85,11 @@ export function RepoKoreanCard({ repo, rank, sortBy }: Props) {
           {/* 제목 + 원본 경로 */}
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-              <button
-                onClick={() => setModalOpen(true)}
-                className="text-base font-bold text-text-primary leading-snug hover:text-accent hover:underline text-left transition-colors"
-                title="상세 모달 열기"
+              <span
+                className="text-base font-bold text-text-primary leading-snug group-hover:text-accent transition-colors"
               >
                 {koreanTitle}
-              </button>
+              </span>
               {/* 언어 닷 */}
               {langColor && (
                 <span
@@ -196,7 +200,7 @@ export function RepoKoreanCard({ repo, rank, sortBy }: Props) {
 
           {/* 원본 정보 토글 */}
           <button
-            onClick={() => setDetailOpen(v => !v)}
+            onClick={(e) => { e.stopPropagation(); setDetailOpen(v => !v); }}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium
                        text-text-tertiary hover:text-text-secondary hover:bg-surface-hover
                        rounded-lg transition-colors ml-auto"
