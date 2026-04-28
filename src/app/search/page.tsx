@@ -171,7 +171,7 @@ export default async function SearchPage({
 
       {/* ─── 우측 사이드바 (메인 페이지와 동일한 비율) ─── */}
       <div className="hidden lg:block w-72 shrink-0">
-        <div className="sticky top-[106px]">
+        <div className="sticky top-[60px]">
           <TrendingSidebar />
         </div>
       </div>

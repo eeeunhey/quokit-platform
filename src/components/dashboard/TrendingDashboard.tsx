@@ -120,8 +120,8 @@ export function TrendingDashboard({ initialPeriod, initialLanguage, initialSort 
   return (
     <div>
       {/* ======= 필터 컨트롤 바 ======= */}
-      <div className="sticky top-14 z-40 -mx-1 px-1 py-3 
-                      micro-glass border-b border-line mb-6">
+      <div className="sticky top-[52px] z-40 -mx-1 px-1 py-2.5 
+                      bg-white/90 backdrop-blur-md border-b border-line mb-6">
         <div className="flex flex-col gap-3">
           
           {/* Row 1: 데이터 소스 토글 (Rising / Hot) + Stars/Forks 정렬 */}
