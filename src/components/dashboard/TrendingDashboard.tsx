@@ -120,103 +120,103 @@ export function TrendingDashboard({ initialPeriod, initialLanguage, initialSort 
   return (
     <div>
       {/* ======= 필터 컨트롤 바 ======= */}
-      <div className="sticky top-[61px] z-40 -mx-1 px-2 py-3 
+      <div className="sticky top-[61px] z-40 -mx-1 px-1 py-2.5
                       bg-white/90 backdrop-blur-md border-b border-line mb-6">
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
-          
-          {/* Row 1/Group 1: 데이터 소스 토글 (Rising / Hot) */}
-          <div className="flex items-center gap-1">
-            {(['rising', 'hot'] as const).map((s) => {
-              const c = SOURCE_CONFIG[s];
-              const Icon = c.icon;
-              const isActive = source === s;
-              return (
-                <button
-                  key={s}
-                  onClick={() => handleSource(s)}
-                  className={`flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-semibold rounded-full transition-all
-                    ${isActive
-                      ? `bg-white ${c.color} shadow-sm ring-1 ring-black/5`
-                      : 'text-text-tertiary hover:text-text-secondary hover:bg-surface-active/50'
-                    }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  {c.label}
-                </button>
-              );
-            })}
-          </div>
+        <div className="flex flex-col gap-2.5">
 
-          <div className="hidden sm:block w-[1px] h-4 bg-line/60" />
-
-          {/* Group 2: Stars/Forks 정렬 */}
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => handleSort('stars')}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-medium rounded-full transition-all
-                ${sort === 'stars'
-                  ? 'bg-white text-star shadow-sm ring-1 ring-black/5'
-                  : 'text-text-tertiary hover:text-text-secondary hover:bg-surface-active/50'}`}
-            >
-              <Star className="w-4 h-4" />
-              Stars
-            </button>
-            <button
-              onClick={() => handleSort('forks')}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-medium rounded-full transition-all
-                ${sort === 'forks'
-                  ? 'bg-white text-fork shadow-sm ring-1 ring-black/5'
-                  : 'text-text-tertiary hover:text-text-secondary hover:bg-surface-active/50'}`}
-            >
-              <GitFork className="w-4 h-4" />
-              Forks
-            </button>
-          </div>
-
-          <div className="hidden md:block w-[1px] h-4 bg-line/60" />
-
-          {/* Group 3: 기간 필터(Rising만) */}
-          {source === 'rising' && (
-            <div className="flex items-center gap-1">
-              {PERIODS.map(({ value, label }) => (
-                <button
-                  key={value}
-                  onClick={() => handlePeriod(value)}
-                  className={`px-3.5 py-1.5 text-sm font-medium rounded-full transition-all
-                    ${period === value
-                      ? 'bg-white text-text-primary shadow-sm ring-1 ring-black/5'
-                      : 'text-text-tertiary hover:text-text-secondary hover:bg-surface-active/50'}`}
-                >
-                  {label}
-                </button>
-              ))}
+          {/* Row 1: 데이터 소스 토글 (Rising / Hot) + Stars/Forks 정렬 */}
+          <div className="flex items-center gap-2">
+            {/* Rising / Hot */}
+            <div className="flex items-center gap-0.5">
+              {(['rising', 'hot'] as const).map((s) => {
+                const c = SOURCE_CONFIG[s];
+                const Icon = c.icon;
+                const isActive = source === s;
+                return (
+                  <button
+                    key={s}
+                    onClick={() => handleSource(s)}
+                    className={`flex items-center gap-1.5 px-4 py-1.5 text-sm font-semibold rounded-full transition-all
+                      ${isActive
+                        ? `bg-surface-active ${c.color} shadow-sm`
+                        : 'text-text-tertiary hover:text-text-secondary hover:bg-surface-active/60'
+                      }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    {c.label}
+                  </button>
+                );
+              })}
             </div>
-          )}
 
-          {source === 'rising' && (
-            <div className="hidden sm:block w-[1px] h-4 bg-line/60" />
-          )}
+            <div className="w-px h-4 bg-line/50 mx-1" />
 
-          {/* Group 4: 언어 + 갯수 선택 */}
-          <div className="flex items-center gap-4">
+            {/* Stars / Forks */}
+            <div className="flex items-center gap-0.5">
+              <button
+                onClick={() => handleSort('stars')}
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-medium rounded-full transition-all
+                  ${sort === 'stars'
+                    ? 'bg-surface-active text-star shadow-sm'
+                    : 'text-text-tertiary hover:text-text-secondary hover:bg-surface-active/60'}`}
+              >
+                <Star className="w-3.5 h-3.5" />
+                Stars
+              </button>
+              <button
+                onClick={() => handleSort('forks')}
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-medium rounded-full transition-all
+                  ${sort === 'forks'
+                    ? 'bg-surface-active text-fork shadow-sm'
+                    : 'text-text-tertiary hover:text-text-secondary hover:bg-surface-active/60'}`}
+              >
+                <GitFork className="w-3.5 h-3.5" />
+                Forks
+              </button>
+            </div>
+          </div>
+
+          {/* Row 2: 기간 필터(Rising만) + 언어 + 갯수 */}
+          <div className="flex items-center gap-2">
+            {source === 'rising' && (
+              <div className="flex items-center gap-0.5">
+                {PERIODS.map(({ value, label }) => (
+                  <button
+                    key={value}
+                    onClick={() => handlePeriod(value)}
+                    className={`px-3.5 py-1.5 text-xs font-medium rounded-full transition-all
+                      ${period === value
+                        ? 'bg-surface-active text-text-primary shadow-sm'
+                        : 'text-text-tertiary hover:text-text-secondary hover:bg-surface-active/60'}`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* 언어 선택 */}
             <select
               value={language}
               onChange={(e) => handleLanguage(e.target.value as ProgrammingLanguage)}
-              className="py-1.5 text-sm font-medium text-text-secondary bg-transparent
-                         hover:text-text-primary focus:outline-none cursor-pointer transition-colors"
+              className="px-2.5 py-1.5 text-xs font-medium text-text-secondary bg-surface
+                         border border-line rounded-xl hover:border-line-hover
+                         focus:outline-none focus:border-accent cursor-pointer transition-colors"
             >
               {LANGUAGES.map(({ value, label }) => (
                 <option key={value} value={value}>{label}</option>
               ))}
             </select>
 
+            {/* 갯수 선택 */}
             <div className="flex items-center gap-1.5">
               <Hash className="w-3.5 h-3.5 text-text-tertiary" />
               <select
                 value={perPage}
                 onChange={(e) => setPerPage(Number(e.target.value))}
-                className="py-1.5 text-sm font-medium text-text-secondary bg-transparent
-                           hover:text-text-primary focus:outline-none cursor-pointer transition-colors"
+                className="px-2 py-1.5 text-xs font-medium text-text-secondary bg-surface
+                           border border-line rounded-xl hover:border-line-hover
+                           focus:outline-none focus:border-accent cursor-pointer transition-colors"
               >
                 {PER_PAGE_OPTIONS.map((n) => (
                   <option key={n} value={n}>{n}개</option>
