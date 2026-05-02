@@ -122,9 +122,9 @@ export function TrendingDashboard({ initialPeriod, initialLanguage, initialSort 
       {/* ======= 필터 컨트롤 바 ======= */}
       <div className="sticky top-[61px] z-40 -mx-1 px-1 py-3
                       micro-glass mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex flex-col gap-2.5">
 
-          {/* 왼쪽: 데이터 소스 (Rising / Hot) + Stars/Forks 정렬 */}
+          {/* 첫 번째 줄: 데이터 소스 (Rising / Hot) + Stars/Forks 정렬 */}
           <div className="flex items-center gap-2">
             {/* Rising / Hot */}
             <div className="flex items-center gap-0.5">
@@ -176,7 +176,7 @@ export function TrendingDashboard({ initialPeriod, initialLanguage, initialSort 
             </div>
           </div>
 
-          {/* 오른쪽: 기간 필터(Rising만) + 언어 + 갯수 */}
+          {/* 두 번째 줄: 기간 필터(Rising만) + 언어 + 갯수 */}
           <div className="flex items-center gap-2">
             {source === 'rising' && (
               <div className="flex items-center gap-0.5">
