@@ -5,4 +5,4 @@ Disallow: /admin
 Disallow: /api/admin
 Disallow: /api/cron
 
-Sitemap: https://quokit.com/sitemap.xml
+Sitemap: https://quokit.site/sitemap.xml

@@ -108,16 +108,23 @@ export function RepoDetailModal({ repo, rank, onClose }: Props) {
     <div
       ref={overlayRef}
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 sm:p-8"
-      onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
+      onClick={(e) => { 
+        e.stopPropagation();
+        if (e.target === overlayRef.current) onClose(); 
+      }}
     >
       <div
         className="relative w-full max-w-5xl bg-surface rounded-2xl border border-line
                    shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200"
+        onClick={(e) => e.stopPropagation()}
       >
         {/* 닫기 버튼 */}
         <div className="absolute top-5 right-5 z-20">
           <button
-            onClick={onClose}
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose();
+            }}
             className="p-2 rounded-xl bg-surface-active/50 hover:bg-surface-active text-text-secondary hover:text-text-primary transition-colors backdrop-blur-md"
             aria-label="닫기"
           >

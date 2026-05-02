@@ -120,11 +120,11 @@ export function TrendingDashboard({ initialPeriod, initialLanguage, initialSort 
   return (
     <div>
       {/* ======= 필터 컨트롤 바 ======= */}
-      <div className="sticky top-[61px] z-40 -mx-1 px-1 py-2.5
-                      bg-white/90 backdrop-blur-md border-b border-line mb-6">
-        <div className="flex flex-col gap-2.5">
+      <div className="sticky top-[61px] z-40 -mx-1 px-1 py-3
+                      micro-glass mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
 
-          {/* Row 1: 데이터 소스 토글 (Rising / Hot) + Stars/Forks 정렬 */}
+          {/* 왼쪽: 데이터 소스 (Rising / Hot) + Stars/Forks 정렬 */}
           <div className="flex items-center gap-2">
             {/* Rising / Hot */}
             <div className="flex items-center gap-0.5">
@@ -149,7 +149,7 @@ export function TrendingDashboard({ initialPeriod, initialLanguage, initialSort 
               })}
             </div>
 
-            <div className="w-px h-4 bg-line/50 mx-1" />
+            <div className="w-px h-4 bg-line/50 mx-1 hidden sm:block" />
 
             {/* Stars / Forks */}
             <div className="flex items-center gap-0.5">
@@ -176,7 +176,7 @@ export function TrendingDashboard({ initialPeriod, initialLanguage, initialSort 
             </div>
           </div>
 
-          {/* Row 2: 기간 필터(Rising만) + 언어 + 갯수 */}
+          {/* 오른쪽: 기간 필터(Rising만) + 언어 + 갯수 */}
           <div className="flex items-center gap-2">
             {source === 'rising' && (
               <div className="flex items-center gap-0.5">
@@ -199,9 +199,8 @@ export function TrendingDashboard({ initialPeriod, initialLanguage, initialSort 
             <select
               value={language}
               onChange={(e) => handleLanguage(e.target.value as ProgrammingLanguage)}
-              className="px-2.5 py-1.5 text-xs font-medium text-text-secondary bg-surface
-                         border border-line rounded-xl hover:border-line-hover
-                         focus:outline-none focus:border-accent cursor-pointer transition-colors"
+              className="py-1.5 px-2 text-xs font-medium text-text-secondary bg-surface-active/50 rounded-full
+                         focus:outline-none cursor-pointer hover:text-text-primary transition-colors"
             >
               {LANGUAGES.map(({ value, label }) => (
                 <option key={value} value={value}>{label}</option>
@@ -209,14 +208,13 @@ export function TrendingDashboard({ initialPeriod, initialLanguage, initialSort 
             </select>
 
             {/* 갯수 선택 */}
-            <div className="flex items-center gap-1.5">
-              <Hash className="w-3.5 h-3.5 text-text-tertiary" />
+            <div className="flex items-center gap-1.5 ml-1 px-3 py-1.5 bg-surface-active/50 rounded-full">
+              <Hash className="w-3 h-3 text-text-tertiary" />
               <select
                 value={perPage}
                 onChange={(e) => setPerPage(Number(e.target.value))}
-                className="px-2 py-1.5 text-xs font-medium text-text-secondary bg-surface
-                           border border-line rounded-xl hover:border-line-hover
-                           focus:outline-none focus:border-accent cursor-pointer transition-colors"
+                className="text-xs font-medium text-text-secondary bg-transparent
+                           focus:outline-none cursor-pointer hover:text-text-primary transition-colors"
               >
                 {PER_PAGE_OPTIONS.map((n) => (
                   <option key={n} value={n}>{n}개</option>
