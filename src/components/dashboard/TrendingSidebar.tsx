@@ -24,31 +24,12 @@ export function TrendingSidebar() {
   const [velocityRepos, setVelocityRepos] = useState<any[]>([]);
 
   useEffect(() => {
-    // 1. 트렌딩 태그 가져오기 (최근 한 달간 만들어진 레포 중 인기 레포들의 태그 수집)
-    const lastMonth = new Date();
-    lastMonth.setMonth(lastMonth.getMonth() - 1);
-    const dateStrMonth = lastMonth.toISOString().split('T')[0];
-
-    fetch(`https://api.github.com/search/repositories?q=created:>${dateStrMonth}&sort=stars&per_page=50`)
+    // 1. 트렌딩 태그 가져오기 (백엔드 자체 캐싱 API 사용)
+    fetch('/api/topics?period=monthly')
       .then(res => res.json())
       .then(data => {
-        if (data.items) {
-          const topicCount: Record<string, number> = {};
-          data.items.forEach((repo: any) => {
-            if (repo.topics) {
-              repo.topics.forEach((topic: string) => {
-                topicCount[topic] = (topicCount[topic] || 0) + 1;
-              });
-            }
-          });
-          const sortedTags = Object.entries(topicCount)
-            .map(([name, count]) => ({ name, count }))
-            .sort((a, b) => b.count - a.count)
-            .slice(0, 10); // 상위 10개 추출
-          
-          if (sortedTags.length > 0) {
-            setTrendingTags(sortedTags);
-          }
+        if (data.success && data.data && data.data.length > 0) {
+          setTrendingTags(data.data);
         }
       })
       .catch(() => { /* 오류 시 FALLBACK_TAGS 유지 */ });
@@ -106,9 +87,6 @@ export function TrendingSidebar() {
             >
               <span className="text-xs font-bold text-text-primary group-hover:text-accent transition-colors">
                 #{tag.name}
-              </span>
-              <span className="text-[10px] font-bold text-text-secondary bg-surface-active px-2 py-0.5 rounded-full group-hover:bg-accent/10 group-hover:text-accent transition-colors">
-                {tag.count}
               </span>
             </a>
           ))}
