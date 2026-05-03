@@ -2,34 +2,56 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { TrendingUp, Dices, Droplets, ExternalLink, Star, ArrowRight, Flame } from 'lucide-react';
+import { TrendingUp, Droplets, Star, ArrowRight, Flame, Hash } from 'lucide-react';
 import { formatKoreanNumber } from '@/lib/utils';
 
-// 예비용 탐색 데이터 (API 제한 걸렸을 때 사용)
-const FALLBACK_GACHA = [
-  { full_name: 'browser-use/browser-use', description: 'AI 에이전트를 위한 웹 브라우저 조작 프레임워크', stargazers_count: 14500, html_url: 'https://github.com/browser-use/browser-use' },
-  { full_name: 'shadcn-ui/ui', description: '아름답게 디자인된 컴포넌트 복사/붙여넣기 시스템', stargazers_count: 52000, html_url: 'https://github.com/shadcn-ui/ui' },
-  { full_name: 'a16z-infra/ai-town', description: '가상의 AI 캐릭터들이 살아가는 작은 마을 시뮬레이터', stargazers_count: 8900, html_url: 'https://github.com/a16z-infra/ai-town' },
-  { full_name: 'excalidraw/excalidraw', description: '손그림 느낌의 가상 화이트보드 툴', stargazers_count: 55000, html_url: 'https://github.com/excalidraw/excalidraw' },
+// 예비용 태그 데이터 (API 제한 걸렸을 때 사용)
+const FALLBACK_TAGS = [
+  { name: 'ai', count: 42 },
+  { name: 'machine-learning', count: 35 },
+  { name: 'react', count: 28 },
+  { name: 'nextjs', count: 24 },
+  { name: 'python', count: 21 },
+  { name: 'rust', count: 18 },
+  { name: 'llm', count: 15 },
+  { name: 'typescript', count: 14 },
+  { name: 'agent', count: 11 },
+  { name: 'web', count: 9 },
 ];
 
 export function TrendingSidebar() {
-  const [gachaPool, setGachaPool] = useState<any[]>(FALLBACK_GACHA);
-  const [currentGacha, setCurrentGacha] = useState<any>(FALLBACK_GACHA[0]);
-  const [isSpinning, setIsSpinning] = useState(false);
+  const [trendingTags, setTrendingTags] = useState<{name: string, count: number}[]>(FALLBACK_TAGS);
   const [velocityRepos, setVelocityRepos] = useState<any[]>([]);
 
   useEffect(() => {
-    // 1. 랜덤 탐색용 레포 풀 가져오기 (스타 5000 이상 인기 레포 50개)
-    fetch('https://api.github.com/search/repositories?q=stars:>5000&sort=stars&per_page=50')
+    // 1. 트렌딩 태그 가져오기 (최근 한 달간 만들어진 레포 중 인기 레포들의 태그 수집)
+    const lastMonth = new Date();
+    lastMonth.setMonth(lastMonth.getMonth() - 1);
+    const dateStrMonth = lastMonth.toISOString().split('T')[0];
+
+    fetch(`https://api.github.com/search/repositories?q=created:>${dateStrMonth}&sort=stars&per_page=50`)
       .then(res => res.json())
       .then(data => {
-        if (data.items && data.items.length > 0) {
-          setGachaPool(data.items);
-          setCurrentGacha(data.items[Math.floor(Math.random() * data.items.length)]);
+        if (data.items) {
+          const topicCount: Record<string, number> = {};
+          data.items.forEach((repo: any) => {
+            if (repo.topics) {
+              repo.topics.forEach((topic: string) => {
+                topicCount[topic] = (topicCount[topic] || 0) + 1;
+              });
+            }
+          });
+          const sortedTags = Object.entries(topicCount)
+            .map(([name, count]) => ({ name, count }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 10); // 상위 10개 추출
+          
+          if (sortedTags.length > 0) {
+            setTrendingTags(sortedTags);
+          }
         }
       })
-      .catch(() => { /* 오류 시 FALLBACK_GACHA 유지 */ });
+      .catch(() => { /* 오류 시 FALLBACK_TAGS 유지 */ });
 
     // 2. 활성도(Velocity) 레포 가져오기 (어제/오늘 업데이트된 대형 레포)
     const date = new Date();
@@ -46,22 +68,6 @@ export function TrendingSidebar() {
       .catch(() => { /* 오류 시 빈 배열 유지 */ });
   }, []);
 
-  const spinGacha = () => {
-    if (isSpinning) return;
-    setIsSpinning(true);
-    
-    // 룰렛 이펙트 (빠르게 여러 번 바꾸다가 멈춤)
-    let count = 0;
-    const interval = setInterval(() => {
-      setCurrentGacha(gachaPool[Math.floor(Math.random() * gachaPool.length)]);
-      count++;
-      if (count > 10) {
-        clearInterval(interval);
-        setIsSpinning(false);
-      }
-    }, 50);
-  };
-
   // 활성도 수치 가상 계산기 (레포 ID 기반 일관된 난수 생성)
   const getPseudoCommitCount = (id: number) => {
     return (id % 120) + 30; // 30 ~ 150 사이의 값
@@ -71,55 +77,42 @@ export function TrendingSidebar() {
     <aside className="flex flex-col gap-5 animate-in fade-in duration-500 w-full">
 
       {/* =========================================================
-          랜덤 레포지토리 탐색 (Random Discovery)
+          인기 트렌딩 태그 (Trending Tags)
           ========================================================= */}
-      <div className="bg-gradient-to-br from-surface to-surface-active/30 border border-line rounded-2xl shadow-sm p-5 relative overflow-hidden">
+      <div className="bg-surface border border-line rounded-2xl shadow-sm p-5 relative overflow-hidden">
         {/* 장식용 배경 요소 */}
         <div className="absolute -top-10 -right-10 w-32 h-32 bg-accent/5 rounded-full blur-2xl pointer-events-none" />
         
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
-            <Dices className="w-4 h-4 text-indigo-500" />
-          </div>
-          <h3 className="text-sm font-bold text-text-primary tracking-tight">랜덤 레포지토리 탐색</h3>
-        </div>
-
-        {/* 뽑힌 레포지토리 카드 */}
-        <div className={`bg-surface border border-line rounded-xl p-4 mb-4 transition-all duration-200
-                        ${isSpinning ? 'scale-95 opacity-50 blur-[2px]' : 'scale-100 opacity-100 shadow-sm'}`}>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-xs font-semibold text-text-primary truncate">
-              {currentGacha?.full_name}
-            </span>
-            <div className="flex items-center gap-0.5 ml-auto text-star shrink-0">
-              <Star className="w-3 h-3 fill-current" />
-              <span className="text-[10px] font-medium data-num">
-                {currentGacha?.stargazers_count ? formatKoreanNumber(currentGacha.stargazers_count) : '0'}
-              </span>
+        <div className="flex flex-col gap-1 mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center border border-accent/20">
+              <Hash className="w-4 h-4 text-accent" />
             </div>
+            <h3 className="text-sm font-bold text-text-primary tracking-tight">인기 트렌딩 태그</h3>
           </div>
-          <p className="text-[11px] text-text-secondary line-clamp-2 leading-relaxed mb-3 h-8">
-            {currentGacha?.description || '설명이 제공되지 않았습니다.'}
-          </p>
-          <a
-            href={currentGacha?.html_url}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-500 hover:text-indigo-600 transition-colors"
-          >
-            GitHub에서 열기 <ExternalLink className="w-3 h-3" />
-          </a>
+          <p className="text-[10px] text-text-tertiary ml-10">최근 한 달간 가장 주목받은 기술 키워드</p>
         </div>
 
-        <button
-          onClick={spinGacha}
-          disabled={isSpinning}
-          className="w-full py-2.5 rounded-xl bg-indigo-500 text-white font-bold text-xs shadow-md 
-                     hover:bg-indigo-600 active:scale-[0.98] transition-all flex items-center justify-center gap-2
-                     disabled:opacity-70 disabled:cursor-not-allowed"
-        >
-          {isSpinning ? '탐색 중...' : '🔄 다른 레포지토리 찾기'}
-        </button>
+        {/* 태그 클라우드 (Pill 스타일) */}
+        <div className="flex flex-wrap gap-2">
+          {trendingTags.map((tag) => (
+            <a
+              key={tag.name}
+              href={`https://github.com/topics/${tag.name}`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-active/50 border border-line/50 
+                         hover:bg-surface-active hover:border-accent/30 hover:text-accent transition-all group"
+            >
+              <span className="text-xs font-semibold text-text-secondary group-hover:text-accent transition-colors">
+                {tag.name}
+              </span>
+              <span className="text-[10px] font-medium text-text-tertiary bg-surface-active px-1.5 rounded-md group-hover:bg-accent/10 group-hover:text-accent/80 transition-colors">
+                {tag.count}
+              </span>
+            </a>
+          ))}
+        </div>
       </div>
 
       {/* =========================================================
