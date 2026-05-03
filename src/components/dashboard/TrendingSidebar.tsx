@@ -70,9 +70,6 @@ export function TrendingSidebar() {
   return (
     <aside className="flex flex-col gap-5 animate-in fade-in duration-500 w-full">
 
-      {/* 광고 영역 (우선 유지) */}
-      <div className="min-h-[250px] w-full" id="sidebar-ad-slot" aria-hidden="true" />
-
       {/* =========================================================
           랜덤 레포지토리 탐색 (Random Discovery)
           ========================================================= */}
@@ -184,6 +181,9 @@ export function TrendingSidebar() {
           )}
         </div>
       </div>
+
+      {/* 광고 영역 (맨 아래 배치) */}
+      <div className="min-h-[250px] w-full" id="sidebar-ad-slot" aria-hidden="true" />
 
       {/* 기존 QUOK-IT 소개 (맨 아래로 이동) */}
       <div className="bg-surface border border-line rounded-2xl shadow-sm p-5">
