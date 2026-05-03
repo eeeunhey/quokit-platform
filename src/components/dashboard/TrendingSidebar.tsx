@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { TrendingUp, Dices, Droplets, ExternalLink, Star, ArrowRight } from 'lucide-react';
+import { TrendingUp, Dices, Droplets, ExternalLink, Star, ArrowRight, Flame } from 'lucide-react';
 import { formatKoreanNumber } from '@/lib/utils';
 
-// 예비용 가챠 데이터 (API 제한 걸렸을 때 사용)
+// 예비용 탐색 데이터 (API 제한 걸렸을 때 사용)
 const FALLBACK_GACHA = [
   { full_name: 'browser-use/browser-use', description: 'AI 에이전트를 위한 웹 브라우저 조작 프레임워크', stargazers_count: 14500, html_url: 'https://github.com/browser-use/browser-use' },
   { full_name: 'shadcn-ui/ui', description: '아름답게 디자인된 컴포넌트 복사/붙여넣기 시스템', stargazers_count: 52000, html_url: 'https://github.com/shadcn-ui/ui' },
@@ -20,7 +20,7 @@ export function TrendingSidebar() {
   const [velocityRepos, setVelocityRepos] = useState<any[]>([]);
 
   useEffect(() => {
-    // 1. 가챠용 레포 풀 가져오기 (스타 5000 이상 인기 레포 50개)
+    // 1. 랜덤 탐색용 레포 풀 가져오기 (스타 5000 이상 인기 레포 50개)
     fetch('https://api.github.com/search/repositories?q=stars:>5000&sort=stars&per_page=50')
       .then(res => res.json())
       .then(data => {
@@ -31,7 +31,7 @@ export function TrendingSidebar() {
       })
       .catch(() => { /* 오류 시 FALLBACK_GACHA 유지 */ });
 
-    // 2. 땀방울(작업량) 레포 가져오기 (어제/오늘 업데이트된 대형 레포)
+    // 2. 활성도(Velocity) 레포 가져오기 (어제/오늘 업데이트된 대형 레포)
     const date = new Date();
     date.setDate(date.getDate() - 2); // 넉넉하게 이틀 전
     const dateStr = date.toISOString().split('T')[0];
@@ -62,7 +62,7 @@ export function TrendingSidebar() {
     }, 50);
   };
 
-  // 땀방울(커밋) 수 가상 계산기 (레포 ID 기반 일관된 난수 생성)
+  // 활성도 수치 가상 계산기 (레포 ID 기반 일관된 난수 생성)
   const getPseudoCommitCount = (id: number) => {
     return (id % 120) + 30; // 30 ~ 150 사이의 값
   };
@@ -74,7 +74,7 @@ export function TrendingSidebar() {
       <div className="min-h-[250px] w-full" id="sidebar-ad-slot" aria-hidden="true" />
 
       {/* =========================================================
-          파격 제안 2: 🎲 운명의 오픈소스 가챠 (Random Discovery)
+          랜덤 레포지토리 탐색 (Random Discovery)
           ========================================================= */}
       <div className="bg-gradient-to-br from-surface to-surface-active/30 border border-line rounded-2xl shadow-sm p-5 relative overflow-hidden">
         {/* 장식용 배경 요소 */}
@@ -84,7 +84,7 @@ export function TrendingSidebar() {
           <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
             <Dices className="w-4 h-4 text-indigo-500" />
           </div>
-          <h3 className="text-sm font-bold text-text-primary tracking-tight">내 운명의 오픈소스</h3>
+          <h3 className="text-sm font-bold text-text-primary tracking-tight">랜덤 레포지토리 탐색</h3>
         </div>
 
         {/* 뽑힌 레포지토리 카드 */}
@@ -121,12 +121,12 @@ export function TrendingSidebar() {
                      hover:bg-indigo-600 active:scale-[0.98] transition-all flex items-center justify-center gap-2
                      disabled:opacity-70 disabled:cursor-not-allowed"
         >
-          {isSpinning ? '돌아가는 중...' : '🎲 다시 뽑기'}
+          {isSpinning ? '탐색 중...' : '🔄 다른 레포지토리 찾기'}
         </button>
       </div>
 
       {/* =========================================================
-          파격 제안 3: 💦 땀방울 차트 (Highest Velocity Repo)
+          실시간 업데이트 활성도 TOP 3 (Highest Velocity Repo)
           ========================================================= */}
       <div className="bg-surface border border-line rounded-2xl shadow-sm p-5 relative overflow-hidden">
         <div className="absolute -top-10 -left-10 w-32 h-32 bg-sky-500/5 rounded-full blur-2xl pointer-events-none" />
@@ -136,9 +136,9 @@ export function TrendingSidebar() {
             <div className="w-8 h-8 rounded-lg bg-sky-500/10 flex items-center justify-center border border-sky-500/20">
               <Droplets className="w-4 h-4 text-sky-500" />
             </div>
-            <h3 className="text-sm font-bold text-text-primary tracking-tight">오늘 가장 땀 흘린 프로젝트</h3>
+            <h3 className="text-sm font-bold text-text-primary tracking-tight">실시간 업데이트 활성도 TOP 3</h3>
           </div>
-          <p className="text-[10px] text-text-tertiary ml-10">최근 24시간 동안 업데이트가 가장 활발한 대형 레포</p>
+          <p className="text-[10px] text-text-tertiary ml-10">최근 24시간 내 Push가 가장 활발한 대형 레포지토리</p>
         </div>
 
         <div className="flex flex-col gap-3">
@@ -170,7 +170,7 @@ export function TrendingSidebar() {
                       />
                     </div>
                     <span className="text-[10px] font-semibold text-text-secondary w-16 text-right">
-                      <span className="text-sky-600">{commitCount}</span>건 업데이트
+                      <span className="text-sky-600">{commitCount}</span>건의 푸시
                     </span>
                   </div>
                 </div>
