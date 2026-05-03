@@ -38,10 +38,9 @@ export default async function HomePage({
         </main>
 
         {/* 우측 사이드바 (30%) 
-            TrendingSidebar는 이제 클라이언트 컴포넌트로 자체적으로 데이터를 fetch합니다.
-            Suspense가 더 이상 필요하지 않습니다 — 컴포넌트 내부에서 skeleton을 관리합니다. */}
-        <div className="hidden lg:block w-72 shrink-0">
-          <div className="sticky top-[60px]">
+            TrendingSidebar는 이제 클라이언트 컴포넌트로 자체적으로 데이터를 fetch합니다. */}
+        <div className="hidden lg:block w-72 shrink-0 pt-[118px]">
+          <div className="sticky top-[100px]">
             <TrendingSidebar />
           </div>
         </div>
