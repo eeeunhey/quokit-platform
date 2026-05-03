@@ -94,20 +94,20 @@ export function TrendingSidebar() {
         </div>
 
         {/* 태그 클라우드 (Pill 스타일) */}
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2.5">
           {trendingTags.map((tag) => (
             <a
               key={tag.name}
               href={`https://github.com/topics/${tag.name}`}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-active/50 border border-line/50 
-                         hover:bg-surface-active hover:border-accent/30 hover:text-accent transition-all group"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-surface border border-line shadow-sm
+                         hover:border-accent hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group"
             >
-              <span className="text-xs font-semibold text-text-secondary group-hover:text-accent transition-colors">
-                {tag.name}
+              <span className="text-xs font-bold text-text-primary group-hover:text-accent transition-colors">
+                #{tag.name}
               </span>
-              <span className="text-[10px] font-medium text-text-tertiary bg-surface-active px-1.5 rounded-md group-hover:bg-accent/10 group-hover:text-accent/80 transition-colors">
+              <span className="text-[10px] font-bold text-text-secondary bg-surface-active px-2 py-0.5 rounded-full group-hover:bg-accent/10 group-hover:text-accent transition-colors">
                 {tag.count}
               </span>
             </a>
