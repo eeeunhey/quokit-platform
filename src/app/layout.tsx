@@ -55,17 +55,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={`${inter.variable} ${jetbrainsMono.variable}`}>
+      <head>
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9949834393027889"
+          crossOrigin="anonymous"
+        ></script>
+      </head>
       <body className="min-h-dvh flex flex-col antialiased bg-bg text-text-primary">
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
         <ScrollButtons />
-        <Script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9949834393027889"
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
       </body>
     </html>
   );
