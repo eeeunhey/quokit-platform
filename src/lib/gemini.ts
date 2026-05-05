@@ -255,5 +255,5 @@ export async function translateReadme(readmeText: string): Promise<string | null
   const translatedText = await callTranslationLong(truncated);
   if (!translatedText) return null;
 
-  return translatedText + '\n\n---\n\n> ⚡ **요약 번역 제공**: 프로젝트의 빠른 파악을 위해 README의 핵심 내용만 요약 번역되었습니다. 상세한 원문은 GitHub에서 확인하실 수 있습니다.';
+  return translatedText + '\n\n---\n\n> 🌐 **본 텍스트는 빠른 이해를 돕기 위한 요약 번역본입니다.** 정확한 기술 정보 및 전체 코드는 GitHub 원문에서 확인하실 수 있습니다.';
 }
