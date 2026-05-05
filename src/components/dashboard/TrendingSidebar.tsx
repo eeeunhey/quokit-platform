@@ -60,86 +60,102 @@ export function TrendingSidebar() {
       {/* =========================================================
           인기 트렌딩 태그 (Trending Tags)
           ========================================================= */}
-      <div className="bg-surface border border-line rounded-2xl shadow-sm p-5 relative overflow-hidden">
+      <div className="bg-surface border border-line rounded-2xl shadow-sm p-4 sm:p-5 relative overflow-hidden flex flex-col gap-4">
         {/* 장식용 배경 요소 */}
         <div className="absolute -top-10 -right-10 w-32 h-32 bg-accent/5 rounded-full blur-2xl pointer-events-none" />
         
-        <div className="flex flex-col gap-1 mb-4">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center border border-accent/20">
-              <Hash className="w-4 h-4 text-accent" />
+        <div className="flex flex-col gap-0.5">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-accent/10 flex items-center justify-center border border-accent/20">
+              <Hash className="w-3.5 h-3.5 text-accent" />
             </div>
-            <h3 className="text-sm font-bold text-text-primary tracking-tight">인기 트렌딩 태그</h3>
+            <h3 className="text-[15px] font-extrabold text-text-primary tracking-tight">인기 트렌딩 태그</h3>
           </div>
-          <p className="text-[10px] text-text-tertiary ml-10">최근 한 달간 가장 주목받은 기술 키워드</p>
+          <p className="text-[11px] font-medium text-text-secondary ml-9">최근 한 달간 가장 주목받은 기술 키워드</p>
         </div>
 
-        {/* 태그 클라우드 (Pill 스타일) */}
-        <div className="flex flex-wrap gap-2.5">
-          {trendingTags.map((tag) => (
-            <a
-              key={tag.name}
-              href={`https://github.com/topics/${tag.name}`}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-surface border border-line shadow-sm
-                         hover:border-accent hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group"
-            >
-              <span className="text-xs font-bold text-text-primary group-hover:text-accent transition-colors">
-                #{tag.name}
-              </span>
-            </a>
-          ))}
+        {/* 태그 클라우드 (Dashboard Style) */}
+        <div className="flex flex-wrap gap-2 pt-1">
+          {trendingTags.map((tag, idx) => {
+            const isTop3 = idx < 3;
+            return (
+              <a
+                key={tag.name}
+                href={`https://github.com/topics/${tag.name}`}
+                target="_blank"
+                rel="noreferrer"
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border shadow-sm
+                           hover:-translate-y-0.5 transition-all duration-200 group
+                           ${isTop3 
+                             ? 'bg-accent/5 border-accent/20 hover:border-accent hover:shadow-md' 
+                             : 'bg-surface border-line hover:border-text-tertiary hover:shadow-md'}`}
+              >
+                {isTop3 && (
+                  <span className="text-[10px] font-black text-accent/60">
+                    {idx + 1}
+                  </span>
+                )}
+                <span className={`text-[11px] font-bold transition-colors ${
+                  isTop3 ? 'text-accent group-hover:text-accent-hover' : 'text-text-secondary group-hover:text-text-primary'
+                }`}>
+                  {tag.name}
+                </span>
+              </a>
+            );
+          })}
         </div>
       </div>
 
       {/* =========================================================
           실시간 업데이트 활성도 TOP 3 (Highest Velocity Repo)
           ========================================================= */}
-      <div className="bg-surface border border-line rounded-2xl shadow-sm p-5 relative overflow-hidden">
+      <div className="bg-surface border border-line rounded-2xl shadow-sm p-4 sm:p-5 relative overflow-hidden flex flex-col gap-4">
         <div className="absolute -top-10 -left-10 w-32 h-32 bg-sky-500/5 rounded-full blur-2xl pointer-events-none" />
         
-        <div className="flex flex-col gap-1 mb-5">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-sky-500/10 flex items-center justify-center border border-sky-500/20">
-              <Droplets className="w-4 h-4 text-sky-500" />
+        <div className="flex flex-col gap-0.5">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-sky-500/10 flex items-center justify-center border border-sky-500/20">
+              <Droplets className="w-3.5 h-3.5 text-sky-500" />
             </div>
-            <h3 className="text-sm font-bold text-text-primary tracking-tight">실시간 업데이트 활성도 TOP 3</h3>
+            <h3 className="text-[15px] font-extrabold text-text-primary tracking-tight">업데이트 활성도 TOP 3</h3>
           </div>
-          <p className="text-[10px] text-text-tertiary ml-10">최근 24시간 내 Push가 가장 활발한 대형 레포지토리</p>
+          <p className="text-[11px] font-medium text-text-secondary ml-9">최근 24시간 내 Push가 잦은 대형 레포</p>
         </div>
 
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2.5 pt-1">
           {velocityRepos.length > 0 ? (
             velocityRepos.map((repo, idx) => {
               const commitCount = getPseudoCommitCount(repo.id);
+              // 이름이 너무 길면 org를 떼고 repo명만 보여주기
+              const shortName = repo.full_name.split('/')[1] || repo.full_name;
               return (
-                <div key={repo.id} className="flex flex-col gap-1.5 p-3 rounded-xl bg-surface-active/30 border border-line/50 hover:border-line transition-colors">
+                <div key={repo.id} className="flex flex-col gap-2 p-3 rounded-xl bg-surface hover:bg-surface-active/40 border border-line shadow-sm transition-colors group">
                   <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span className="text-xs font-black text-sky-500/50 w-3 shrink-0">{idx + 1}</span>
-                      <a href={repo.html_url} target="_blank" rel="noreferrer" className="text-xs font-semibold text-text-primary hover:text-sky-600 transition-colors truncate">
-                        {repo.full_name}
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                      <span className="text-xs font-black text-sky-500/40 w-3 shrink-0 text-center">{idx + 1}</span>
+                      <a href={repo.html_url} target="_blank" rel="noreferrer" className="text-[12px] font-bold text-text-primary group-hover:text-sky-600 transition-colors truncate">
+                        {shortName}
                       </a>
+                      {idx === 0 && (
+                        <div className="shrink-0 flex items-center gap-0.5 bg-sky-500/10 text-sky-600 px-1.5 py-0.5 rounded border border-sky-500/20">
+                          <Flame className="w-2.5 h-2.5 text-sky-500" />
+                          <span className="text-[9px] font-black uppercase tracking-wider">Hot</span>
+                        </div>
+                      )}
                     </div>
-                    {/* 활성도 뱃지 */}
-                    <div className="shrink-0 inline-flex items-center gap-1 bg-sky-500/10 text-sky-600 px-2 py-0.5 rounded-full border border-sky-500/20">
-                      <Flame className="w-3 h-3 text-sky-500" />
-                      <span className="text-[10px] font-bold">HOT</span>
-                    </div>
+                    <span className="text-[10px] font-extrabold text-text-secondary shrink-0">
+                      <span className="text-sky-600">{commitCount}</span> <span className="font-medium text-text-tertiary">pushes</span>
+                    </span>
                   </div>
                   
                   {/* 작업량 게이지 */}
-                  <div className="flex items-center gap-2 pl-5 mt-1">
-                    <div className="flex-1 h-1.5 bg-surface-active rounded-full overflow-hidden">
+                  <div className="flex items-center gap-2 pl-6">
+                    <div className="flex-1 h-1.5 bg-line/50 rounded-full overflow-hidden">
                       <div 
                         className="h-full bg-gradient-to-r from-sky-400 to-sky-500 rounded-full" 
                         style={{ width: `${Math.min(100, (commitCount / 150) * 100)}%` }}
                       />
                     </div>
-                    <span className="text-[10px] font-semibold text-text-secondary w-16 text-right">
-                      <span className="text-sky-600">{commitCount}</span>건의 푸시
-                    </span>
                   </div>
                 </div>
               );
@@ -147,7 +163,7 @@ export function TrendingSidebar() {
           ) : (
             // 로딩 중이거나 데이터 없을 때 스켈레톤
             Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-16 rounded-xl bg-surface-active/50 animate-pulse" />
+              <div key={i} className="h-16 rounded-xl bg-surface-active/50 animate-pulse border border-line/50" />
             ))
           )}
         </div>
