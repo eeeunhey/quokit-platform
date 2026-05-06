@@ -2,167 +2,94 @@
 
 # 🌿 QUOKIT (쿼킷)
 
-**GitHub를 더 쉽게 접하고, 지금 주목받는 레포를 자연스럽게 경험하는 플랫폼**
+**A GitHub trending curation platform designed for Korean developers.** <br>
+*QUOKIT automatically fetches global trending repositories, translates their READMEs into Korean using an AI-driven multi-layer translation pipeline, and provides a clean UI to lower the barrier to open-source exploration.*
 
 <br>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Status-Beta-4F46E5?style=flat-square&logo=github" alt="Status" />
-  <img src="https://img.shields.io/badge/Focus-GitHub%20Discovery-111827?style=flat-square" alt="Focus" />
-  <img src="https://img.shields.io/badge/UX-Beginner%20Friendly-F59E0B?style=flat-square&logo=open-badges" alt="UX" />
-  <img src="https://img.shields.io/badge/Language-Korean%20First-2563EB?style=flat-square" alt="Language" />
+  <img src="https://img.shields.io/badge/Next.js%2016-000000?style=flat-square&logo=next.js&logoColor=white" alt="Next.js" />
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Tailwind%20CSS-06B6D4?style=flat-square&logo=tailwind-css&logoColor=white" alt="Tailwind" />
+  <img src="https://img.shields.io/badge/Supabase-3ECF8E?style=flat-square&logo=supabase&logoColor=white" alt="Supabase" />
+  <img src="https://img.shields.io/badge/Upstash%20Redis-00E676?style=flat-square&logo=redis&logoColor=white" alt="Redis" />
 </p>
 
-<p align="center">
-  <em>
-  "하나의 레포를 계기로, 더 많은 레포와 GitHub의 흐름을 자연스럽게 경험할 수 있습니다."
-  </em>
-</p>
+<!-- TODO: 나중에 여기에 실제 서비스 캡처 이미지(가로로 긴 비율 추천)를 삽입하세요 -->
+<!-- 예시: <img src="이미지링크" alt="QUOKIT 대시보드 스크린샷" width="800" /> -->
+
+<br>
+
+<!-- TODO: 실제 배포된 사이트 주소로 교체하세요 -->
+<a href="https://당신의-실제-서비스-주소.com" target="_blank">
+  <img src="https://img.shields.io/badge/🚀_서비스_바로가기_Live_Demo-4F46E5?style=for-the-badge" alt="Live Demo" />
+</a>
+
 </div>
+
+<br>
 
 ---
 
-## 📖 프로젝트 소개
+## 📖 프로젝트 소개 (About)
 
-**QUOKIT은 넓고 방대한 GitHub 생태계에서 누구나 부담 없이 새로운 레포지토리를 발견할 수 있도록 돕는 오픈소스 탐색 플랫폼입니다.**
+**QUOKIT은 넓고 방대한 GitHub 생태계에서 누구나 부담 없이 새로운 오픈소스를 발견할 수 있도록 돕는 큐레이션 플랫폼입니다.**
 
 전 세계 개발자들이 주목하는 인기 프로젝트들을 실시간으로 제공합니다. 거창한 리서치 과정이나 깊은 기술 분석이 없어도 됩니다. 텍스트 위주의 길고 복잡한 원문이 주는 진입 장벽을 낮춰, **누구나 호기심만으로 가볍게 최신 기술 흐름을 둘러볼 수 있도록** 기획되었습니다.
 
 > **QUOKIT은 물리학의 ‘쿼크(quark)’에서 영감을 받은 이름입니다.** <br>
-> **쿼크가 아주 작지만 중요한 기본 단위이듯, QUOKIT도 하나의 레포를 만나는 경험이 더 넓은 GitHub 관심과 탐색의 시작이 될 수 있다는 의미를 담고 있습니다.**
+> 쿼크가 아주 작지만 중요한 기본 단위이듯, QUOKIT도 하나의 레포를 만나는 경험이 더 넓은 GitHub 관심과 탐색의 시작이 될 수 있다는 의미를 담고 있습니다.
+
+---
+
+## 🚀 아키텍처 및 기술적 강점 (Technical Highlights)
+
+본 프로젝트는 단순한 API 호출을 넘어, **데이터 수집-가공-캐싱-서빙의 전체 파이프라인을 최적화**하는 데 집중했습니다.
+
+### 1. 🤖 3단계 Fallback 번역 파이프라인
+영문 README를 한국어로 자연스럽게 제공하기 위해 견고한 번역 체인을 구축했습니다.
+- **1차 (HuggingFace OPUS-MT):** 영→한 기술 문서 번역에 특화된 오픈소스 AI 모델 활용 (문장 단위 분할 배치 처리)
+- **2차 & 3차 (Bing/Google API):** 1차 모델 로딩(Cold Start) 지연이나 Rate Limit 발생 시 즉시 우회하여 번역 중단을 방지
+
+### 2. ⚡ Multi-Layer 캐싱 전략 (Redis & DB)
+잦은 외부 API 호출로 인한 속도 저하를 막기 위해 **Upstash Redis**를 활용한 캐시 레이어를 도입했습니다.
+- `Client ➜ Redis(Memory) ➜ Supabase(DB) ➜ GitHub/Translation API` 순으로 접근하여 응답 속도를 극대화했습니다.
+
+### 3. 🕷️ GitHub API 한계 우회 스크래퍼
+GitHub Search API로는 잡히지 않는 "실시간 급상승(Trending)" 레포지토리를 포착하기 위해, `cheerio`를 활용하여 `github.com/trending` HTML을 직접 파싱하는 커스텀 스크래퍼를 구현했습니다.
+
+### 4. 🔄 Vercel Cron 기반 자동화 파이프라인
+관리자의 개입 없이도 트렌딩 데이터가 매일 갱신되도록 4개의 크론잡(Cron Job)을 설계했습니다.
+- 데이터 수집(`fetch-trending`) ➜ 번역 처리(`translate-new`) ➜ 오래된 캐시 정리(`cleanup`)
+
+### 5. 🔍 주제 기반(Topic) 유사 레포 추천 알고리즘
+현재 보고 있는 레포지토리의 토픽 교집합을 계산하여, 유사도를 백분율(%)로 분석하고 연관성이 높은 다른 프로젝트를 동적으로 추천합니다. (`similarity.ts`)
+
+### 6. 🛡️ Proxy 기반 Admin 라우트 보안
+관리자 전용 대시보드는 Next.js Proxy를 통해 보호됩니다. `Authorization` 헤더 검증 및 세션 쿠키 기반 인증을 적용했으며, 크롤러의 인덱싱(`noindex, nofollow`)을 차단했습니다.
 
 ---
 
 ## 🎯 핵심 경험 포인트
 
 ### 1. 직관적인 트렌딩 오픈소스 피드 (Easy Discovery)
-지금 전 세계 GitHub에서 가장 많은 별(Star)을 얻고 있는 핫한 기술과 라이브러리들을 모아 보여줍니다. 오늘, 이번 주, 이번 달 등 기간별 트렌드를 피드 넘기듯 가볍게 살피며 새로운 개발 관심사를 넓혀보세요.
+오늘, 이번 주, 이번 달 등 기간별 트렌드를 피드 넘기듯 가볍게 살피며 새로운 개발 관심사를 넓혀보세요.
 
 ### 2. 가독성을 극대화한 UI (Quick Scan & Start)
-복잡한 기술 문서를 텍스트로 나열하지 않고, 핵심 정보만 추려 카드 형태로 깔끔하게 배치했습니다. 이 저장소가 무얼 하는 곳인지 화면을 열자마자 판단하여, 내게 재미있고 영감을 주는 프로젝트인지 직관적으로 확인할 수 있습니다.
+복잡한 기술 문서를 텍스트로 나열하지 않고, 핵심 정보만 추려 카드 형태로 깔끔하게 배치했습니다. 이 저장소가 무얼 하는 곳인지 화면을 열자마자 직관적으로 판단할 수 있습니다.
 
 ### 3. 트렌딩 개발자 네트워크 (Live Developer Network)
-화려한 코드 이면의 트렌드를 주도하는 인기 개발자들과 만날 수 있습니다. 실시간 API 연동을 통해 그들의 활동 현황과 훌륭한 저장소들을 살피며, 개발자 생태계에 대한 폭넓은 호기심을 충족시켜 줍니다.
+화려한 코드 이면의 트렌드를 주도하는 인기 개발자들과 만날 수 있습니다. 실시간 API 연동을 통해 그들의 활동 현황과 훌륭한 저장소들을 살피며 생태계에 대한 폭넓은 호기심을 충족시켜 줍니다.
 
 ---
 
-## 👤 이런 분들에게 추천합니다
+## 🛠 Tech Stack
 
-1. 🌱 **GitHub가 아직 익숙하지 않은 분**
-   GitHub를 처음 접하거나, 어떤 레포부터 봐야 할지 막막할 때 도움이 됩니다. 지금 주목받는 레포를 한글로 더 쉽게 정리해, 처음 보는 레포도 부담 없이 이해할 수 있도록 구성했습니다.
-
-2. 👀 **요즘 주목받는 레포를 편하게 보고 싶은 분**
-   지금 어떤 레포가 관심을 받고 있는지, 복잡한 설명 없이 편하게 확인하고 싶은 분들에게 잘 맞습니다. 핵심만 정리해, GitHub를 더 가볍게 경험할 수 있습니다.
-
-3. ⚡ **사이드 프로젝트나 학습에 참고할 레포를 찾는 분**
-   다른 사람들의 아이디어와 구현 방식을 참고하고 싶을 때 유용합니다. 레포의 핵심 정보와 특징을 이해하기 쉽게 정리해, 필요한 레포를 더 빠르게 찾을 수 있도록 돕습니다.
+- **Frontend:** Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Recharts
+- **Backend & Database:** Next.js API Routes, Supabase (PostgreSQL), Prisma ORM
+- **Cache & Automation:** Upstash Redis, Vercel Cron
+- **Integration:** GitHub REST API, Cheerio (Scraping), HuggingFace Inference API (OPUS-MT), Google/Bing Translate
 
 ---
 
-## 🛠 아키텍처 및 사용 기술
-
-### **Frontend**
-*   ![Next.js](https://img.shields.io/badge/Next.js%2014-000000?style=flat-square&logo=next.js&logoColor=white) (App Router 채택)
-*   ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
-*   ![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-06B6D4?style=flat-square&logo=tailwind-css&logoColor=white)
-
-### **Backend / Database**
-*   ![Next.js API](https://img.shields.io/badge/Next.js%20API-000000?style=flat-square&logo=next.js&logoColor=white) (안정적인 데이터 통신)
-*   ![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=flat-square&logo=prisma&logoColor=white) (ORM 연동)
-*   ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white) (로컬/원격 DB 관리)
-
-### **External 연동**
-*   ![GitHub API](https://img.shields.io/badge/GitHub%20REST%20API-181717?style=flat-square&logo=github&logoColor=white) (유저 프로필 및 저장소 트렌드 조회)
-
----
-
-## 🚀 로컬 환경 시작 가이드
-
-사용자님의 로컬 PC에서 프로젝트를 직업 구동하려면 아래 가이드를 진행해 주세요.
-
-### 1. 패키지 다운로드
-```bash
-git clone https://github.com/eeeunhey/quokit-platform.git
-cd quokit-platform
-npm install
-```
-
-### 2. 세팅용 환경 변수 설정
-최상단 폴더에 `.env` 파일을 만들고 본인 환경에 맞춰 값을 기입합니다.
-```env
-DATABASE_URL="postgresql://계정명:비밀번호@호스트주소:5432/DB이름"
-GITHUB_ACCESS_TOKEN="깃허브에서-발급받은-personal-access-token"
-```
-
-### 3. 데이터베이스(Prisma) 세팅
-```bash
-npx prisma generate
-npx prisma db push
-```
-
-### 4. 로컬 서버 실행하기
-```bash
-npm run dev
-```
-이제 웹 브라우저를 열어 `http://localhost:3000`에 접속해주시면 됩니다!
-
----
-
-## 📁 핵심 폴더 구조 (Directory Structure)
-
-프론트엔드와 백엔드 코드가 효율적으로 결합된 **Next.js 풀스택 아키텍처**입니다.
-
-```bash
-quokit-platform/
-├── src/
-│   ├── app/                    # 🌐 Next.js 라우터 & 백엔드 서버 API
-│   │   ├── api/                
-│   │   │   ├── cron/           # 주기적인 데이터 수집 및 번역 자동화 라우트
-│   │   │   ├── developers/     # 트렌딩 개발자 목록 서빙 엔드포인트
-│   │   │   ├── repos/          # 저장소 상세, 유사 모듈 및 README 번역 API
-│   │   │   └── trending/       # 인기 오픈소스 피드를 공급하는 API
-│   │   ├── developers/         # 개발자 상세 뷰 화면 라우트
-│   │   └── page.tsx            # 메인 홈(시작 페이지) 진입점
-│   │
-│   ├── components/             # 🧱 역할별로 분리된 View 및 공용 컴포넌트
-│   │   ├── dashboard/          # 메인 화면 피드 (RepoKoreanCard, 필터 리스트 등)
-│   │   ├── developer/          # GitHub API 실시간 프로필 및 상세 모달부
-│   │   ├── layout/             # 헤더, 푸터, 다크모드(ThemeProvider) 토글기능
-│   │   └── repo/               # 영문 README를 위한 전용 Markdown 뷰어 모듈
-│   │
-│   ├── lib/                    # ⚙️ 외부 시스템 연계를 담당하는 라이브러리 모음
-│   │   ├── db.ts               # Prisma ORM 통신 클라이언트
-│   │   ├── github.ts           # GitHub REST 라이브 연동 헬퍼 클래스
-│   │   └── translator.ts       # 언어 변환 및 파싱을 지원하는 번역 커스텀 모듈
-│   │
-│   └── types/                  # 💡 전체 도메인 타입스크립트 스키마(Type) 선언
-│
-├── prisma/                     # 관계형 데이터베이스 스키마 정의 (schema.prisma)
-└── tailwind.config.ts          # 반응형 디자인 테마 및 글로벌 유틸리티 설정
-```
-
----
-
-## 🗺 나아갈 로드맵 (Roadmap)
-
-필요한 기능부터 차근차근 추가할 예정입니다.
-
-- [ ] **응답 속도 개선**
-  자주 보는 데이터는 더 빠르게 불러올 수 있도록 개선할 예정입니다.
-
-- [ ] **레포 검색 기능**
-  관심 있는 키워드로 원하는 레포를 직접 찾아볼 수 있도록 확장할 예정입니다.
-
-- [ ] **북마크(저장) 기능**
-  나중에 다시 보고 싶은 레포를 저장해둘 수 있도록 추가할 예정입니다.
-
----
-
-## 📄 라이선스 (License)
-
-이 프로젝트는 **MIT License**를 따릅니다. 코드를 참고하시거나 활용하여, 또 다른 훌륭한 오픈소스 프로젝트의 밑거름(단위)으로 마음껏 활용하셔도 좋습니다.
-
-<br>
-<div align="center">
-  <i>Powered by GitHub REST API & Prisma • Build with ❤️ by QUOKIT Team</i>
-</div>
+*💡 이 레포지토리는 서비스의 아키텍처와 코드를 공유하기 위해 공개되었습니다. 현재는 서비스 고도화 및 안정적인 운영에 집중하고 있어, 별도의 로컬 실행 환경(Local Setup) 가이드는 제공하지 않습니다. 서비스 이용은 상단의 [🚀 서비스 바로가기] 링크를 통해 웹에서 즉시 경험해 보세요!*
