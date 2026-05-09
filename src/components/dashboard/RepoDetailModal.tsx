@@ -29,13 +29,9 @@ interface GithubDetail {
   default_branch: string;
   readme_ko: string | null;
   readme_original: string | null;
-}
-
-interface ActivityDay {
-  date: string;
-  stars: number;
-  forks: number;
-  issues: number;
+  top_contributors?: { login: string; avatar_url: string }[];
+  latest_release?: string | null;
+  commit_activity?: { date: string; commits: number }[];
 }
 
 interface Props {
@@ -47,7 +43,6 @@ interface Props {
 export function RepoDetailModal({ repo, rank, onClose }: Props) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const [detail, setDetail] = useState<GithubDetail | null>(null);
-  const [activity, setActivity] = useState<ActivityDay[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -85,11 +80,8 @@ export function RepoDetailModal({ repo, rank, onClose }: Props) {
         if (!json.success) throw new Error(json.error);
         const data = json.data;
 
-        const mockActivity = generateMockActivity(repo.stars_count, repo.gained_stars, 14);
-
         if (!cancelled) {
           setDetail(data);
-          setActivity(mockActivity);
         }
       } catch (e) {
         if (!cancelled) setError(true);
@@ -192,8 +184,23 @@ export function RepoDetailModal({ repo, rank, onClose }: Props) {
                )}
                <span className="flex items-center gap-1"><Star className="w-4 h-4 text-star" /> <span className="data-num text-text-primary">{formatCompactNumber(repo.stars_count)}</span></span>
                <span className="flex items-center gap-1"><GitFork className="w-4 h-4 text-fork" /> <span className="data-num text-text-primary">{formatCompactNumber(repo.forks_count)}</span></span>
-               <span className="flex items-center gap-1"><Users className="w-4 h-4 text-accent" /> <span className="data-num text-text-primary">{detail?.contributors_count || '...'}</span> contributors</span>
+               <span className="flex items-center gap-1.5">
+                 <Users className="w-4 h-4 text-accent" /> 
+                 {detail?.top_contributors && detail.top_contributors.length > 0 && (
+                   <div className="flex -space-x-1.5 mr-1">
+                     {detail.top_contributors.map(c => (
+                       <img key={c.login} src={c.avatar_url} alt={c.login} title={c.login} className="w-4 h-4 rounded-full border border-surface bg-surface-active" />
+                     ))}
+                   </div>
+                 )}
+                 <span className="data-num text-text-primary">{detail?.contributors_count || '...'}</span> contributors
+               </span>
                <span className="flex items-center gap-1"><GitCommit className="w-4 h-4" /> last commit <span className="data-num text-text-primary">{detail?.last_commit_at ? formatRelativeTime(detail.last_commit_at) : '...'}</span></span>
+               {detail?.latest_release && (
+                 <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-500 border border-blue-500/20 shadow-sm">
+                   🏷️ {detail.latest_release}
+                 </span>
+               )}
                {repo.homepage && (
                   <a href={repo.homepage} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-accent hover:underline"><ExternalLink className="w-3.5 h-3.5" /> website</a>
                )}
@@ -265,16 +272,16 @@ export function RepoDetailModal({ repo, rank, onClose }: Props) {
             </div>
           )}
 
-          {/* 차트 영역 */}
-          {!loading && !error && activity.length > 0 && (
+          {/* 차트 영역 (가짜 데이터 대신 진짜 14주 커밋 펄스 연결) */}
+          {!loading && !error && detail?.commit_activity && detail.commit_activity.length > 0 && (
             <div className="pt-8 border-t border-line">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="text-base font-bold text-text-primary">활성도 추이 곡선</h3>
-                  <p className="text-xs text-text-tertiary mt-1">최근 14일간 Stars · Forks · Issues 증감폭</p>
+                  <h3 className="text-base font-bold text-text-primary">실시간 커밋 생존 지표 (Pulse)</h3>
+                  <p className="text-xs text-text-tertiary mt-1">최근 14주간의 프로젝트 커밋 활동량</p>
                 </div>
               </div>
-              <ActivityChart data={activity} />
+              <ActivityChart data={detail.commit_activity} />
             </div>
           )}
           
@@ -286,19 +293,3 @@ export function RepoDetailModal({ repo, rank, onClose }: Props) {
   return createPortal(modalContent, document.body);
 }
 
-function generateMockActivity(totalStars: number, gainedToday: number, days: number): ActivityDay[] {
-  const result: ActivityDay[] = [];
-  const now = new Date();
-  for (let i = days - 1; i >= 0; i--) {
-    const d = new Date(now);
-    d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().slice(0, 10);
-    const isToday = i === 0;
-    const base = isToday ? gainedToday : Math.max(0, Math.round(gainedToday * (0.3 + Math.random() * 0.8)));
-    const forkBase = Math.round(base * 0.15 + Math.random() * 5);
-    const issueBase = Math.round(Math.random() * 3);
-
-    result.push({ date: dateStr, stars: base, forks: forkBase, issues: issueBase });
-  }
-  return result;
-}
