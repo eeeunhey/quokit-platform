@@ -43,26 +43,24 @@ export async function GET(request: Request) {
       const login = repo.owner.login;
       if (!login) return;
 
-      if (!devMap[login]) {
-        // 결정론적 일수(hits) 계산 함수
-        const generateHits = () => {
-          let hash = 0;
-          for (let i = 0; i < login.length; i++) hash = Math.imul(31, hash) + login.charCodeAt(i) | 0;
-          const normalized = Math.abs(hash) / 2147483648; 
-          return Math.floor(normalized * 300) + 50; // 50 ~ 350
-        };
+      const stars = repo.stargazers_count || 0;
 
+      if (!devMap[login]) {
         devMap[login] = {
           id: login,
           login: login,
           name: login, 
           avatar: repo.owner.avatar_url,
-          hits: generateHits(),
+          hits: stars,
           topLang: repo.language || 'Unknown'
         };
+      } else {
+        // 여러 트렌딩 레포를 가진 개발자라면 스타 수를 누적합니다.
+        devMap[login].hits += stars;
       }
     });
 
+    // 획득한 진짜 스타 수 합계를 기준으로 정렬
     const developers = Object.values(devMap).sort((a: any, b: any) => b.hits - a.hits).slice(0, limit);
 
     return NextResponse.json(developers);
