@@ -55,13 +55,10 @@ export function RepoKoreanCard({ repo, rank, sortBy }: Props) {
   if (!koreanHeadline) koreanHeadline = koreanTitle + ' - ' + stripMarkdown(repo.description_ko?.slice(0, 30) || '설명 준비 중');
 
   return (
-    <article
-      className="surface-card overflow-hidden group animate-in cursor-pointer hover:border-line-hover transition-colors"
-      onClick={() => setModalOpen(true)}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setModalOpen(true); }}
-    >
+    <Link href={`/repo/${repo.owner_login}/${repo.name}`} className="block">
+      <article
+        className="surface-card overflow-hidden group animate-in cursor-pointer hover:border-line-hover transition-colors"
+      >
       {/* ======= 기본 펼침 영역 (항상 노출) ======= */}
       <div className="px-5 pt-5 pb-4">
         
@@ -198,12 +195,21 @@ export function RepoKoreanCard({ repo, rank, sortBy }: Props) {
             </a>
           )}
 
+          {/* 빠른 미리보기 (기존 모달) */}
+          <button
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setModalOpen(true); }}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-accent border border-accent/30 rounded-lg hover:bg-accent/10 transition-colors ml-auto"
+          >
+            <Zap className="w-3 h-3" />
+            빠른 미리보기
+          </button>
+
           {/* 원본 정보 토글 */}
           <button
-            onClick={(e) => { e.stopPropagation(); setDetailOpen(v => !v); }}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDetailOpen(v => !v); }}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium
                        text-text-tertiary hover:text-text-secondary hover:bg-surface-hover
-                       rounded-lg transition-colors ml-auto"
+                       rounded-lg transition-colors"
             aria-expanded={detailOpen}
           >
             원본 정보
@@ -278,7 +284,8 @@ export function RepoKoreanCard({ repo, rank, sortBy }: Props) {
       {modalOpen && (
         <RepoDetailModal repo={repo} rank={rank} onClose={() => setModalOpen(false)} />
       )}
-    </article>
+      </article>
+    </Link>
   );
 }
 

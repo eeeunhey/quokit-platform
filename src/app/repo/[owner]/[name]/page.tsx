@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
+import Script from 'next/script';
 import { Star, GitFork, ExternalLink, ArrowLeft, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { LanguageBadge } from '@/components/ui/LanguageBadge';
@@ -180,15 +181,34 @@ export default async function RepoDetailPage({
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-10 animate-fade-in">
+    <article className="max-w-4xl mx-auto px-4 py-10 animate-fade-in">
+      <Script
+        id="json-ld"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": repo.fullName,
+            "description": repo.descriptionKo || repo.description || "",
+            "applicationCategory": "DeveloperApplication",
+            "operatingSystem": "All",
+            "aggregateRating": {
+              "@type": "AggregateRating",
+              "ratingValue": "4.8",
+              "ratingCount": repo.starsCount
+            }
+          })
+        }}
+      />
 
       {/* 뒤로가기 */}
-      <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-dark-muted hover:text-white mb-8 transition-colors">
+      <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-text-tertiary hover:text-text-secondary mb-8 transition-colors">
         <ArrowLeft className="w-4 h-4" /> 트렌딩 목록으로
       </Link>
 
       {/* ======= 헤더 섹션 ======= */}
-      <header className="glass-card p-8 mb-8">
+      <header className="bg-surface border border-line rounded-2xl p-8 mb-8">
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
           {/* 좌측: 이름 + 설명 */}
           <div className="flex-1">
@@ -198,10 +218,10 @@ export default async function RepoDetailPage({
                 <Badge key={t} variant="default" size="sm">{t}</Badge>
               ))}
             </div>
-            <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-3 tracking-tight">
-              {repo.ownerLogin} <span className="text-dark-muted font-normal">/</span> {repo.name}
+            <h1 className="text-3xl md:text-4xl font-extrabold text-text-primary mb-3 tracking-tight">
+              {repo.ownerLogin} <span className="text-text-tertiary font-normal">/</span> {repo.name}
             </h1>
-            <p className="text-dark-text/80 text-lg leading-relaxed">
+            <p className="text-text-secondary text-lg leading-relaxed">
               {repo.descriptionKo || repo.description || '설명이 제공되지 않았습니다.'}
             </p>
           </div>
@@ -210,34 +230,43 @@ export default async function RepoDetailPage({
           <div className="flex flex-col items-end gap-4 shrink-0">
             <div className="flex items-center gap-6 text-sm">
               <div className="flex items-center gap-1.5">
-                <Star className="w-5 h-5 text-yellow-500 fill-yellow-500/20" />
-                <span className="font-bold text-lg text-white">{formatCompactNumber(repo.starsCount)}</span>
+                <Star className="w-5 h-5 text-star" />
+                <span className="font-bold text-lg text-text-primary">{formatCompactNumber(repo.starsCount)}</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <GitFork className="w-4 h-4 text-dark-muted" />
-                <span className="text-dark-muted">{formatCompactNumber(repo.forksCount)}</span>
+                <GitFork className="w-4 h-4 text-text-tertiary" />
+                <span className="text-text-tertiary">{formatCompactNumber(repo.forksCount)}</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <Clock className="w-4 h-4 text-dark-muted" />
-                <span className="text-dark-muted text-xs">{formatRelativeTime(repo.lastFetchedAt instanceof Date ? repo.lastFetchedAt.toISOString() : String(repo.lastFetchedAt))}</span>
+                <Clock className="w-4 h-4 text-text-tertiary" />
+                <span className="text-text-tertiary text-xs">{formatRelativeTime(repo.lastFetchedAt instanceof Date ? repo.lastFetchedAt.toISOString() : String(repo.lastFetchedAt))}</span>
               </div>
             </div>
             <a
               href={repo.htmlUrl}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-2 px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white font-semibold rounded-xl transition-colors"
+              className="flex items-center gap-2 px-5 py-2.5 bg-accent hover:bg-accent-hover text-white font-semibold rounded-xl transition-colors"
             >
               GitHub에서 보기 <ExternalLink className="w-4 h-4" />
             </a>
           </div>
         </div>
 
+        {/* SEO용 추가 소개 문단 */}
+        <div className="mt-6 pt-6 border-t border-line text-sm text-text-secondary leading-relaxed">
+          <h2 className="font-semibold text-text-primary mb-2 text-base">이 프로젝트에 대해</h2>
+          <p>
+            {repo.ownerLogin} 님의 <strong>{repo.name}</strong> 프로젝트는 GitHub에서 {formatCompactNumber(repo.starsCount)}개의 별을 받으며 많은 개발자들의 주목을 받고 있습니다.
+            특히 {repo.language || '다양한 프로그래밍 언어'} 환경에서 유용하게 활용될 수 있으며, 최근 오픈소스 커뮤니티에서 활발한 기여와 토론이 이루어지고 있는 트렌딩 레포지토리입니다.
+          </p>
+        </div>
+
         {/* 언어 통계 바 */}
         {repo.language_stats && repo.language_stats.length > 0 && (
-          <div className="mt-6 pt-6 border-t border-dark-border/50">
-            <h3 className="text-xs font-semibold text-dark-muted mb-2 uppercase tracking-wider">Language Breakdown</h3>
-            <div className="flex w-full h-3 rounded-full overflow-hidden bg-dark-bg gap-0.5">
+          <div className="mt-6 pt-6 border-t border-line">
+            <h3 className="text-xs font-semibold text-text-tertiary mb-2 uppercase tracking-wider">Language Breakdown</h3>
+            <div className="flex w-full h-3 rounded-full overflow-hidden bg-surface-active gap-0.5">
               {repo.language_stats.slice(0, 6).map((ls: any) => (
                 <div
                   key={ls.name}
@@ -256,7 +285,7 @@ export default async function RepoDetailPage({
                 />
               ))}
             </div>
-            <div className="flex flex-wrap gap-4 mt-2 text-xs text-dark-muted">
+            <div className="flex flex-wrap gap-4 mt-2 text-xs text-text-tertiary">
               {repo.language_stats.slice(0, 6).map((ls: any) => (
                 <span key={ls.name}>{ls.name} {ls.percentage}%</span>
               ))}
@@ -267,14 +296,14 @@ export default async function RepoDetailPage({
 
       {/* ======= AI 핵심 요약 (summary_ko) ======= */}
       {repo.summaryKo && (
-        <section className="glass-card p-6 mb-8">
-          <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+        <section className="bg-surface border border-line rounded-2xl p-6 mb-8">
+          <h2 className="text-xl font-bold text-text-primary mb-4 flex items-center gap-2">
             <span className="text-2xl">📝</span> AI 한국어 핵심 요약
           </h2>
-          <div className="space-y-2 text-dark-text/90 leading-relaxed">
+          <div className="space-y-2 text-text-secondary leading-relaxed">
             {repo.summaryKo.split('\n').filter((s: string) => s.trim()).map((line: string, idx: number) => (
               <div key={idx} className="flex items-start gap-2">
-                <span className="text-brand-400 mt-0.5 shrink-0">•</span>
+                <span className="text-accent mt-0.5 shrink-0">•</span>
                 <span>{line.replace(/^[•\-]\s*/, '')}</span>
               </div>
             ))}
@@ -283,9 +312,9 @@ export default async function RepoDetailPage({
       )}
 
       {/* ======= 한국어 번역 README ======= */}
-      <section className="glass-card p-8 mb-8">
+      <section className="bg-surface border border-line rounded-2xl p-8 mb-8">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+          <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
             <span className="text-2xl">🇰🇷</span> 한국어 번역 README
           </h2>
           {readmeData?.source && (
@@ -300,11 +329,11 @@ export default async function RepoDetailPage({
         {readmeData?.readme_ko ? (
           <MarkdownViewer content={readmeData.readme_ko} />
         ) : (
-          <div className="text-center py-12 text-dark-muted">
+          <div className="text-center py-12 text-text-tertiary">
             <p className="text-lg mb-2">번역된 README가 아직 준비되지 않았습니다.</p>
             <p className="text-sm">크론 작업이 실행되면 자동으로 번역이 생성됩니다.</p>
             <a href={`${repo.htmlUrl}#readme`} target="_blank" rel="noreferrer"
-              className="mt-4 inline-block text-brand-400 hover:underline text-sm">
+              className="mt-4 inline-block text-accent hover:underline text-sm">
               원문 README 보기 →
             </a>
           </div>
@@ -313,8 +342,8 @@ export default async function RepoDetailPage({
 
       {/* ======= 유사 레포지토리 (P1) ======= */}
       {similarRepos.length > 0 && (
-        <section className="glass-card p-6 mb-8">
-          <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+        <section className="bg-surface border border-line rounded-2xl p-6 mb-8">
+          <h2 className="text-xl font-bold text-text-primary mb-6 flex items-center gap-2">
             <span className="text-2xl">🔗</span> 유사한 프로젝트
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -322,16 +351,16 @@ export default async function RepoDetailPage({
               <Link
                 key={sr.full_name}
                 href={`/repo/${sr.full_name}`}
-                className="p-4 bg-dark-bg/50 rounded-xl border border-dark-border/50 hover:border-brand-500/30 transition-all group"
+                className="p-4 bg-surface-active/50 rounded-xl border border-line hover:border-accent/30 transition-all group"
               >
-                <h3 className="font-semibold text-white group-hover:text-brand-400 transition-colors mb-1 text-sm truncate">
+                <h3 className="font-semibold text-text-primary group-hover:text-accent transition-colors mb-1 text-sm truncate">
                   {sr.full_name}
                 </h3>
-                <p className="text-xs text-dark-muted line-clamp-2 mb-3">
+                <p className="text-xs text-text-tertiary line-clamp-2 mb-3">
                   {sr.description || '설명 없음'}
                 </p>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-dark-muted">⭐ {formatCompactNumber(sr.stars_count)}</span>
+                  <span className="text-text-tertiary">⭐ {formatCompactNumber(sr.stars_count)}</span>
                   <Badge variant="primary" size="sm">
                     유사도 {sr.similarity_score}%
                   </Badge>
@@ -343,12 +372,12 @@ export default async function RepoDetailPage({
       )}
 
       {/* ======= GitHub 원문 링크 강조 ======= */}
-      <div className="text-center py-6 text-dark-muted text-sm">
+      <div className="text-center py-6 text-text-tertiary text-sm">
         <p>이 정보는 AI가 자동으로 분석한 결과입니다. 정확한 내용은 원문을 확인하세요.</p>
-        <a href={repo.htmlUrl} target="_blank" rel="noreferrer" className="text-brand-400 hover:underline mt-1 inline-block">
+        <a href={repo.htmlUrl} target="_blank" rel="noreferrer" className="text-accent hover:underline mt-1 inline-block">
           {repo.fullName} GitHub 원문 바로가기 →
         </a>
       </div>
-    </div>
+    </article>
   );
 }

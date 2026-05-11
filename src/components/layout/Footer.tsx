@@ -49,7 +49,9 @@ export function Footer() {
           <div>
             <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-3">사이트</h3>
             <ul className="space-y-2">
+              <li><FooterLink href="/weekly">주간 트렌드 분석 (New!)</FooterLink></li>
               <li><FooterLink href="/about">QUOK-IT 소개</FooterLink></li>
+              <li><FooterLink href="/terms">이용약관</FooterLink></li>
               <li><FooterLink href="/privacy">개인정보처리방침</FooterLink></li>
             </ul>
           </div>
