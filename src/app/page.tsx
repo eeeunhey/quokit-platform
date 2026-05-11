@@ -40,7 +40,6 @@ export default async function HomePage({
             initialLanguage={language}
             initialSort={sort}
           />
-          />
         </main>
 
         {/* 우측 사이드바 (30%) 
