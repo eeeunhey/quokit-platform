@@ -27,11 +27,11 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // 번역이 필요한 레포 최대 15개씩 처리
+    // 번역이 필요한 레포 최대 50개씩 처리 (수집량 75개/일에 맞춰 확대)
     const pendingRepos = await prisma.repository.findMany({
       where: { descriptionKo: null },
       orderBy: { starsCount: 'desc' },
-      take: 15,
+      take: 50,
     });
 
     if (pendingRepos.length === 0) {

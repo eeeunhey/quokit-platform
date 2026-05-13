@@ -44,7 +44,11 @@ export function RepoKoreanCard({ repo, rank, sortBy }: Props) {
     .replace(/\b\w/g, c => c.toUpperCase());
 
   // 하단 박스에 들어갈 GitHub About 번역본
-  const githubAboutKo = stripMarkdown(repo.description_ko || repo.description || 'GitHub 소개 내용이 아직 없습니다.');
+  const githubAboutKo = repo.description_ko
+    ? stripMarkdown(repo.description_ko)
+    : repo.description
+      ? `🌐 ${stripMarkdown(repo.description)}\n(한국어 번역이 곧 제공됩니다)`
+      : 'GitHub 소개 내용이 아직 없습니다.';
 
   // 굵은 글씨(제목 대체)로 사용할 한국어 요약 (summary_ko의 첫 문장)
   let koreanHeadline = '';

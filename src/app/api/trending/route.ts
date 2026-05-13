@@ -4,6 +4,7 @@ import { safeGetCache, safeSetCache } from '@/lib/redis';
 import { CACHE_TTL } from '@/lib/constants';
 import { fetchTrendingRepositories } from '@/lib/github';
 import { scrapeTrendingRepos } from '@/lib/github-trending';
+import { translateDescription } from '@/lib/gemini';
 import { TrendingPeriod, ProgrammingLanguage, TrendingRepository } from '@/types';
 
 export const maxDuration = 60;
@@ -54,10 +55,31 @@ export async function GET(request: NextRequest) {
       results = await fetchRisingData(period, language, page, perPage);
     }
 
-    // 번역은 전적으로 /api/cron/translate-new 크론잡에 위임하여 로딩 속도를 0.1초로 극대화합니다.
-    // (기존의 10초 이상 걸리던 실시간 동기 번역 대기 로직 완전 제거)
+    // ── 실시간 번역: description_ko가 null인 레포를 즉석 번역 ──
+    // description은 한 줄짜리 짧은 텍스트 → 병렬 처리 시 전체 20개를 ~2초에 완료
+    const untranslated = results.filter(r => r.description && !r.description_ko);
+    if (untranslated.length > 0) {
+      const translations = await Promise.allSettled(
+        untranslated.map(r => translateDescription(r.description!))
+      );
 
-    // Redis 캐시 저장
+      translations.forEach((result, idx) => {
+        if (result.status === 'fulfilled' && result.value) {
+          const repo = untranslated[idx];
+          repo.description_ko = result.value;
+
+          // DB에 저장 (fire-and-forget: 응답을 기다리지 않음)
+          if (repo.id && repo.id > 0) {
+            prisma.repository.update({
+              where: { id: BigInt(repo.id) },
+              data: { descriptionKo: result.value },
+            }).catch(() => {}); // 실패해도 무시 — 다음 요청에서 재시도
+          }
+        }
+      });
+    }
+
+    // Redis 캐시 저장 (번역 결과 포함)
     if (results.length > 0) {
       const ttl = period === 'daily' ? CACHE_TTL.DAILY : CACHE_TTL.WEEKLY;
       await safeSetCache(cacheKey, results, ttl);
