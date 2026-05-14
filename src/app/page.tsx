@@ -18,12 +18,12 @@ export default async function HomePage({
   return (
     <div className="max-w-[1280px] mx-auto px-6">
       
-      {/* SEO를 위한 상단 소개 텍스트 (구글봇 친화적, 시각적으로는 부드럽게) */}
-      <div className="pt-8 pb-4">
-        <h1 className="text-lg sm:text-xl font-bold text-text-secondary mb-2 tracking-tight">
+      {/* SEO를 위한 상단 소개 텍스트 (시각적으로 더욱 작고 은은하게) */}
+      <div className="pt-6 pb-2">
+        <h1 className="text-base font-semibold text-text-secondary mb-1 tracking-tight">
           GitHub 오픈소스 트렌딩, 한국어로 한눈에
         </h1>
-        <p className="text-text-tertiary text-[14px] sm:text-[15px] leading-relaxed max-w-3xl">
+        <p className="text-text-tertiary text-[13px] leading-relaxed max-w-4xl">
           QUOK-IT은 전 세계 개발자들이 주목하는 GitHub 인기 레포지토리를 실시간으로 분석하여 소개합니다. 
           지금 핫하게 떠오르는 트렌딩 프로젝트부터 새롭게 조명받는 오픈소스까지, 
           꼭 필요한 핵심만 담은 AI 요약과 한국어 번역으로 최신 기술 동향을 더욱 빠르고 편안하게 파악해 보세요.
