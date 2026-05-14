@@ -18,15 +18,15 @@ export default async function HomePage({
   return (
     <div className="max-w-[1280px] mx-auto px-6">
       
-      {/* SEO를 위한 상단 소개 텍스트 (구글봇 친화적) */}
-      <div className="pt-10 pb-2">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-text-primary mb-3 tracking-tight">
-          GitHub 오픈소스 트렌딩 한국어 큐레이션
+      {/* SEO를 위한 상단 소개 텍스트 (구글봇 친화적, 시각적으로는 부드럽게) */}
+      <div className="pt-8 pb-4">
+        <h1 className="text-lg sm:text-xl font-bold text-text-secondary mb-2 tracking-tight">
+          GitHub 오픈소스 트렌딩, 한국어로 한눈에
         </h1>
-        <p className="text-text-secondary text-[15px] sm:text-base leading-relaxed max-w-3xl">
-          QUOK-IT은 전 세계 수백만 명의 개발자들이 주목하는 GitHub의 인기 오픈소스 프로젝트(Trending Repositories)를 실시간으로 수집하고 분석합니다.
-          매일 새롭게 떠오르는 신생 레포(Rising)와 꾸준히 화제가 되는 레포(Hot)를 <strong>한국어 번역 및 AI 요약</strong>과 함께 제공하여,
-          국내 개발자들이 글로벌 기술 동향을 가장 빠르고 정확하게 파악할 수 있도록 돕습니다.
+        <p className="text-text-tertiary text-[14px] sm:text-[15px] leading-relaxed max-w-3xl">
+          QUOK-IT은 전 세계 개발자들이 주목하는 GitHub 인기 레포지토리를 실시간으로 분석하여 소개합니다. 
+          지금 핫하게 떠오르는 트렌딩 프로젝트부터 새롭게 조명받는 오픈소스까지, 
+          꼭 필요한 핵심만 담은 AI 요약과 한국어 번역으로 최신 기술 동향을 더욱 빠르고 편안하게 파악해 보세요.
         </p>
       </div>
 
