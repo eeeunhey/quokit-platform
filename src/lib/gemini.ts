@@ -172,7 +172,7 @@ export function cleanReadmeForTranslation(raw: string): string {
  *
  * 짧은 텍스트(description 등)는 단일 호출로 처리합니다.
  */
-async function callTranslation(text: string): Promise<string> {
+async function callTranslation(text: string): Promise<string | null> {
   // 1차: OPUS-MT (Hugging Face, 무료 오픈소스)
   const opusResult = await callOpusMT(text);
   if (opusResult) {
@@ -195,8 +195,8 @@ async function callTranslation(text: string): Promise<string> {
     return googleRes;
   } catch (error) {
     console.error('[All Translation Engines Failed]');
-    // 최종 실패 시 영문 원본 반환
-    return text;
+    // 최종 실패 시 null 반환 (DB에 영문이 한국어로 잘못 저장되는 것 방지)
+    return null;
   }
 }
 
@@ -206,7 +206,7 @@ async function callTranslation(text: string): Promise<string> {
  * OPUS-MT는 문장 분할 배치 번역으로 품질을 극대화합니다.
  * 실패 시 Bing/Google 단일 호출로 전체 텍스트를 번역합니다.
  */
-async function callTranslationLong(text: string): Promise<string> {
+async function callTranslationLong(text: string): Promise<string | null> {
   // 1차: OPUS-MT 문장 분할 배치 번역 (고품질)
   const opusResult = await callOpusMTBatch(text);
   if (opusResult) {
@@ -229,7 +229,7 @@ async function callTranslationLong(text: string): Promise<string> {
     return googleRes;
   } catch (error) {
     console.error('[All Translation Engines Failed (Long)]');
-    return text;
+    return null;
   }
 }
 

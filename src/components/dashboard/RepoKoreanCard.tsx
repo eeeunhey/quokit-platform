@@ -43,9 +43,10 @@ export function RepoKoreanCard({ repo, rank, sortBy }: Props) {
     .replace(/-/g, ' ')
     .replace(/\b\w/g, c => c.toUpperCase());
 
-  // 하단 박스에 들어갈 GitHub About 번역본
-  const githubAboutKo = repo.description_ko
-    ? stripMarkdown(repo.description_ko)
+  // 하단 박스에 들어갈 GitHub About 번역본 (이전 버그로 인해 영어 원문이 DB에 저장된 경우도 처리)
+  const isTranslated = repo.description_ko && repo.description_ko !== repo.description;
+  const githubAboutKo = isTranslated
+    ? stripMarkdown(repo.description_ko!)
     : repo.description
       ? `🌐 ${stripMarkdown(repo.description)}\n(한국어 번역이 곧 제공됩니다)`
       : 'GitHub 소개 내용이 아직 없습니다.';
@@ -56,7 +57,9 @@ export function RepoKoreanCard({ repo, rank, sortBy }: Props) {
     koreanHeadline = repo.summary_ko.split(/\|분할\||\n/)[0].replace(/^[-*•]\s*/, '').trim();
     koreanHeadline = stripMarkdown(koreanHeadline);
   }
-  if (!koreanHeadline) koreanHeadline = koreanTitle + ' - ' + stripMarkdown(repo.description_ko?.slice(0, 30) || '설명 준비 중');
+  if (!koreanHeadline) {
+    koreanHeadline = koreanTitle + ' - ' + (isTranslated ? stripMarkdown(repo.description_ko!.slice(0, 30)) : '설명 준비 중');
+  }
 
   return (
     <Link href={`/repo/${repo.owner_login}/${repo.name}`} className="block">
