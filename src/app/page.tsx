@@ -24,9 +24,7 @@ export default async function HomePage({
           GitHub 오픈소스 트렌딩, 한국어로 한눈에
         </h1>
         <p className="text-text-tertiary text-[13px] leading-relaxed max-w-4xl">
-          QUOK-IT은 전 세계 개발자들이 주목하는 GitHub 인기 레포지토리를 실시간으로 분석하여 소개합니다. 
-          지금 핫하게 떠오르는 트렌딩 프로젝트부터 새롭게 조명받는 오픈소스까지, 
-          꼭 필요한 핵심만 담은 AI 요약과 한국어 번역으로 최신 기술 동향을 더욱 빠르고 편안하게 파악해 보세요.
+          매일 떠오르는 GitHub 인기 프로젝트를 AI 요약과 한국어 번역으로 빠르게 만나보세요.
         </p>
       </div>
 
