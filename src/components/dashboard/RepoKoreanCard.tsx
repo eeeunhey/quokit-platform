@@ -62,8 +62,9 @@ export function RepoKoreanCard({ repo, rank, sortBy }: Props) {
   }
 
   return (
-    <Link href={`/repo/${repo.owner_login}/${repo.name}`} className="block">
+    <>
       <article
+        onClick={() => setModalOpen(true)}
         className="surface-card overflow-hidden group animate-in cursor-pointer hover:border-line-hover transition-colors"
       >
       {/* ======= 기본 펼침 영역 (항상 노출) ======= */}
@@ -292,7 +293,7 @@ export function RepoKoreanCard({ repo, rank, sortBy }: Props) {
         <RepoDetailModal repo={repo} rank={rank} onClose={() => setModalOpen(false)} />
       )}
       </article>
-    </Link>
+    </>
   );
 }
 

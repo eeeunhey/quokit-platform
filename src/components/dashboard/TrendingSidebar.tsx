@@ -19,6 +19,11 @@ const FALLBACK_TAGS = [
   { name: 'web', count: 9 },
 ];
 
+// 활성도 수치 가상 계산기 (레포 ID 기반 일관된 난수 생성)
+const getPseudoCommitCount = (id: number) => {
+  return (id % 120) + 30; // 30 ~ 150 사이의 값
+};
+
 export function TrendingSidebar() {
   const [trendingTags, setTrendingTags] = useState<{name: string, count: number}[]>(FALLBACK_TAGS);
   const [velocityRepos, setVelocityRepos] = useState<any[]>([]);
@@ -43,16 +48,14 @@ export function TrendingSidebar() {
       .then(res => res.json())
       .then(data => {
         if (data.items) {
-          setVelocityRepos(data.items);
+          const sortedItems = data.items.sort((a: any, b: any) => 
+            getPseudoCommitCount(b.id) - getPseudoCommitCount(a.id)
+          );
+          setVelocityRepos(sortedItems);
         }
       })
       .catch(() => { /* 오류 시 빈 배열 유지 */ });
   }, []);
-
-  // 활성도 수치 가상 계산기 (레포 ID 기반 일관된 난수 생성)
-  const getPseudoCommitCount = (id: number) => {
-    return (id % 120) + 30; // 30 ~ 150 사이의 값
-  };
 
   return (
     <aside className="flex flex-col gap-5 animate-in fade-in duration-500 w-full">
