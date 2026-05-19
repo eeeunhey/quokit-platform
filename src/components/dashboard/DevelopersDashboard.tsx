@@ -77,6 +77,7 @@ function CustomDropdown({ icon: Icon, options, value, onChange, className = '' }
 // ----------------------------------------------------------------------
 export function DevelopersDashboard() {
   // 필터 상태
+  const [devType, setDevType] = useState<'trending' | 'all-time'>('trending');
   const [period, setPeriod] = useState('daily');
   const [language, setLanguage] = useState('all');
   const [displayCount, setDisplayCount] = useState('25');
@@ -89,7 +90,7 @@ export function DevelopersDashboard() {
   // 백엔드 API에서 실제 트렌딩 개발자 정보 가져오기 (필터 파라미터 적용)
   useEffect(() => {
     setIsLoading(true);
-    fetch(`/api/developers?limit=${displayCount}&lang=${language}&period=${period}`)
+    fetch(`/api/developers?limit=${displayCount}&lang=${language}&period=${period}&type=${devType}`)
       .then(res => res.json())
       .then(data => {
         setRealDevelopers(data);
@@ -99,7 +100,7 @@ export function DevelopersDashboard() {
         console.error("개발자 목록 로드 실패", err);
         setIsLoading(false);
       });
-  }, [displayCount, language, period]); // 필터가 바뀔 때마다 즉각 연동
+  }, [displayCount, language, period, devType]); // 필터가 바뀔 때마다 즉각 연동
 
   useEffect(() => {
     if (selectedDev) {
@@ -144,12 +145,38 @@ export function DevelopersDashboard() {
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-[#1F2937] flex items-center gap-2.5">
-              트렌딩 개발자
-              <TrendingUp className="w-5 h-5 text-[#6F8F72]" />
+              {devType === 'trending' ? '급상승 트렌딩 개발자' : '역대 최고 인기 개발자'}
+              {devType === 'trending' ? <TrendingUp className="w-5 h-5 text-[#E8875B]" /> : <Flame className="w-5 h-5 text-[#6F8F72]" />}
             </h1>
             <p className="text-[13px] text-[#9CA3AF] mt-1.5 font-normal">
-              GitHub 트렌딩에 자주 등장하는 개발자 순위
+              {devType === 'trending' 
+                ? '오늘, 이번 주 새롭게 떠오르는 GitHub 실시간 개발자 순위' 
+                : 'GitHub 누적 스타 수가 가장 많은 글로벌 Top 개발자 순위'}
             </p>
+          </div>
+          
+          {/* 탭 스위처 */}
+          <div className="flex bg-[#F3F4F6] p-1 rounded-xl shrink-0 mt-2 sm:mt-0">
+            <button
+              onClick={() => setDevType('trending')}
+              className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                devType === 'trending' 
+                  ? 'bg-white text-[#1F2937] shadow-sm' 
+                  : 'text-[#6B7280] hover:text-[#374151]'
+              }`}
+            >
+              🔥 급상승 트렌딩
+            </button>
+            <button
+              onClick={() => setDevType('all-time')}
+              className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                devType === 'all-time' 
+                  ? 'bg-white text-[#1F2937] shadow-sm' 
+                  : 'text-[#6B7280] hover:text-[#374151]'
+              }`}
+            >
+              🌟 역대 최고 인기
+            </button>
           </div>
         </div>
         
